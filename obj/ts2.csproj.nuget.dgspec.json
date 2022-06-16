@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj",
+        "projectName": "ts2",
+        "projectPath": "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj",
+        "packagesPath": "C:\\Users\\andry\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\andry\\Downloads\\ts2\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\andry\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.ML.Probabilistic.Compiler": {
+              "target": "Package",
+              "version": "[0.4.2203.202, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.16.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
