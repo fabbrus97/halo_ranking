@@ -64,7 +64,7 @@ namespace ts2
         }
 
 
-        static List<Match> getMatches()
+        static List<Match> getMatches(string play_mode)
         {
           var dbClient = new MongoClient("mongodb://127.0.0.1:27017");
           IMongoDatabase db = dbClient.GetDatabase("dbTestHalo");
@@ -82,17 +82,16 @@ namespace ts2
 
                 if (max-- < 0)
                     break;
-
-                var team1players = new List<TeamPlayer>();
-                var team2players = new List<TeamPlayer>();
-
-                var secondsPlayed = (int)_match["data"][0]["match"]["duration"]["seconds"];
-                var players_string = _match["data"][0]["match"]["players"].ToJson();
-                int num_players=Regex.Matches(players_string, "details").Count;
-
-
-
-                for (int i=0;i<num_players;i=i+1)
+                string play_mode_mongo=(string)(_match["data"][0]["match"]["details"]["gamevariant"]["name"]);
+                play_mode_mongo= play_mode_mongo[6..];
+                if(play_mode==play_mode_mongo)
+                {
+                  var team1players = new List<TeamPlayer>();
+                  var team2players = new List<TeamPlayer>();
+                  var secondsPlayed = (int)_match["data"][0]["match"]["duration"]["seconds"];
+                  var players_string = _match["data"][0]["match"]["players"].ToJson();
+                  int num_players=Regex.Matches(players_string, "details").Count;
+                  for (int i=0;i<num_players;i=i+1)
                 {
                     var tag = (string)_match["data"][0]["match"]["players"][i]["details"]["name"];
                     var date_join=(string)_match["data"][0]["match"]["players"][i]["participation"]["joined_at"];
@@ -148,7 +147,7 @@ namespace ts2
 
                 var match = new Match(team1, team2, winner, id, mode, startTime, endTimeMatch, secondsPlayed);
                 matches.Add(match);
-            }
+            } }
 
             return matches;
         }
@@ -182,8 +181,9 @@ namespace ts2
 
 
         }
+      }
 
-}
+
 
 
 
@@ -192,14 +192,13 @@ namespace ts2
 
         static void Main(string[] args)
         {
-          var matches = getMatches();
+
           string[] mode_array = new string[] { "CTF","Slayer","Strongholds","Oddball","One Flag CTF"};
-          List<List<Match>> match_per_mode=split_match_mode(matches,mode_array);
+          string moda_scelta="Slayer";
+          var matches = getMatches(moda_scelta);
+          //List<List<Match>> match_per_mode=split_match_mode(matches,mode_array);
           int totale=0;
-          for(var i=0;i<mode_array.Length;i=i+1){
-            Console.WriteLine("Per la modalità "+mode_array[i]+" ci sono "+ match_per_mode[i].Count+" match");
-            totale=totale+match_per_mode[i].Count;
-         }
+
           Console.WriteLine("In totale ci sono "+totale+" match");
           Console.WriteLine("Inizio calcolo dei parametri...");
             //Console.WriteLine(matches[0].team1.teammates[0].tag);
@@ -209,9 +208,9 @@ namespace ts2
           var parcalc = new ParamsCalculator();
           //TODO setta parametri a seconda della partita
 
-          
-          var Players_arr = parcalc.players(match_per_mode[0]).ToArray();
-          Console.WriteLine("Nella modalità "+mode_array[0]+" ci sono "+Players_arr.Length+" players" );
+
+          var Players_arr = parcalc.players(matches).ToArray();
+          Console.WriteLine("Nella modalità "+moda_scelta+" ci sono "+Players_arr.Length+" players" );
           Gaussian[] Skillls = new Gaussian[Players_arr.Length];
           List<string> players_fino_ad_ora=  new List<string>();
 
@@ -219,7 +218,7 @@ namespace ts2
 
 
 
-          var sublists = SplitToSublists(match_per_mode[0],50);
+          var sublists = SplitToSublists(matches,50);
           Console.WriteLine(sublists[0][0].team1.teammates[0].tag);
           Console.WriteLine("IL TIPO è"+sublists.GetType());
           Console.WriteLine("Ci sono "+sublists.Count+" sublist");
@@ -230,7 +229,7 @@ namespace ts2
             Console.WriteLine("La sublist numero "+ i + " ha "+ sublists[i].Count+" match");
             totale=totale+ sublists[i].Count;
          }
-         Console.WriteLine("In totale ci sono "+totale+" match per la modalità "+mode_array[0] );
+         Console.WriteLine("In totale ci sono "+totale+" match per la modalità "+moda_scelta );
 
 
 
