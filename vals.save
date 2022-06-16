@@ -1,0 +1,50 @@
+m = 1, v = 100
+N ITERATIONS: 500
+Gaussian.PointMass(-0,6008)
+Gamma.PointMass(0,6728)
+Gamma.PointMass(1,144e+04)
+
+750:
+Gaussian.PointMass(-0,6161)
+Gamma.PointMass(0,6535)
+
+850:
+Gaussian.PointMass(-0,6178)
+Gamma.PointMass(0,6514)
+
+1000:
+Gaussian.PointMass(-0,6189)
+Gamma.PointMass(0,65)
+
+1100:
+Gaussian.PointMass(-0,6192)
+Gamma.PointMass(0,6496)
+
+
+############################################
+m = 100, v = 10000
+
+500:
+Gaussian.PointMass(-44,95)
+Gamma.PointMass(8,13e-05)
+
+750:
+Gaussian.PointMass(-41,9)
+Gamma.PointMass(9,494e-05)
+
+1000:
+Gaussian.PointMass(-39,25)
+Gamma.PointMass(0,0001092)
+
+##########################################
+m = 3, v = 100, dump = 0.5
+
+500:
+Gaussian.PointMass(0,0886)
+Gamma.PointMass(0,84)
+Gaussian.PointMass(-17,21)
+
+
+Gaussian.PointMass(0,0886)
+Gamma.PointMass(0,84)
+Gaussian.PointMass(-17,21)
