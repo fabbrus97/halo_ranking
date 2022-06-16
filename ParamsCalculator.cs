@@ -503,7 +503,7 @@ namespace ts2
             Console.WriteLine(inferredp0);
             Console.WriteLine(inferredDrawMargin);
 
-            this.epsilon = inferredDrawMargin.Point;
+            this.epsilon = Math.Max(10e-3, inferredDrawMargin.Point);
             this.m0 = inferredm0.Point;
             this.v0 = 1/inferredp0.Point;
 

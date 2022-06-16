@@ -153,6 +153,43 @@ namespace ts2
             return matches;
         }
 
+
+
+      static void updateMongo(List<Match> sottolista, Gaussian[] skills, string[] nomi){
+
+
+
+        var dbClient = new MongoClient("mongodb://127.0.0.1:27017");
+        IMongoDatabase db = dbClient.GetDatabase("dbTestHalo");
+        var Matches = db.GetCollection<BsonDocument>("Collection");
+
+        foreach (Match item in sottolista){
+
+          var filter = Builders<BsonDocument>.Filter.Eq("data.0.match.id", item.id);
+
+          for(int i=0;i<item.team1.nPlayers();i=i+1){
+            var skill_player=skills[IndexOf(nomi,item.team1.teammates[i].tag)].GetMean();
+            var update = Builders<BsonDocument>.Update.Set("data.0.match.players."+i+".rank", skill_player);
+            Matches.UpdateOne(filter, update);
+
+          }
+          for(int i=0;i<item.team2.nPlayers();i=i+1){
+            var skill_player=skills[IndexOf(nomi,item.team2.teammates[i].tag)].GetMean();
+            var tot_i=i+item.team1.nPlayers();
+            var update = Builders<BsonDocument>.Update.Set("data.0.match.players."+tot_i+".rank", skill_player);
+            Matches.UpdateOne(filter, update);
+          }
+
+
+        }
+
+}
+
+
+
+
+
+
         static void Main(string[] args)
         {
           var matches = getMatches();
@@ -170,9 +207,9 @@ namespace ts2
 
           var calc = new ParamsCalculator(matches);
           var parcalc = new ParamsCalculator();
-            //TODO setta parametri a seconda della partita
+          //TODO setta parametri a seconda della partita
 
-            //skills è un array; per sapere a quale giocatore corrisponde la skill i-esima ci serve la lista dei giocatori
+          
           var Players_arr = parcalc.players(match_per_mode[0]).ToArray();
           Console.WriteLine("Nella modalità "+mode_array[0]+" ci sono "+Players_arr.Length+" players" );
           Gaussian[] Skillls = new Gaussian[Players_arr.Length];
@@ -183,8 +220,12 @@ namespace ts2
 
 
           var sublists = SplitToSublists(match_per_mode[0],50);
+          Console.WriteLine(sublists[0][0].team1.teammates[0].tag);
+          Console.WriteLine("IL TIPO è"+sublists.GetType());
           Console.WriteLine("Ci sono "+sublists.Count+" sublist");
           totale=0;
+
+
           for(var i=0;i<sublists.Count;i=i+1){
             Console.WriteLine("La sublist numero "+ i + " ha "+ sublists[i].Count+" match");
             totale=totale+ sublists[i].Count;
@@ -213,8 +254,9 @@ namespace ts2
            }
            var appoggio_skill = parcalc.ComputeSkills();
            foreach(string item in appoggio_player){
-               Skillls[IndexOf(Players_arr,item)]= appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
+            Skillls[IndexOf(Players_arr,item)]= appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
              }
+          updateMongo(sublists[i],appoggio_skill,appoggio_player);
 
            Console.WriteLine("Nella sottogruppo"+ i+ "ho "+ appoggio_player.Length+" giocatori");
            Console.WriteLine("Nella sottogruppo"+ i+ "ho "+  appoggio_skill.Length+" skills");
@@ -223,32 +265,7 @@ namespace ts2
 
 
 
-            //Mi calcolo le skill per la prima modalità,primo blocco
 
-/*
-
-            //Mi calcolo le skill per la prima modalità,secondo blocco
-            parcalc.SetMatches(sublists[1]);
-            var appoggio_player1 = parcalc.players(sublists[1]).ToArray();
-            Gaussian[] baseskills = new Gaussian[appoggio_player1.Length];
-            var arr_players_common = appoggio_player1.Intersect(appoggio_player);
-            Console.WriteLine("La lista dei giocatori in comune è:");
-
-            foreach(string item in arr_players_common){
-              Console.WriteLine(item);
-              baseskills[IndexOf(appoggio_player1,item)]=appoggio_skill[IndexOf(appoggio_player,item)];}
-
-
-            Console.WriteLine(baseskills[3].Equals(baseskills[3]));
-
-            Console.WriteLine(baseskills[3]);
-
-            parcalc.SetBaseSkills(baseskills);
-            var appoggio_skill1= parcalc.ComputeSkills();
-
-
-
-*/
 
 
 

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj": {}
+    "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj": {
+    "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj",
+        "projectUniqueName": "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj",
         "projectName": "ts2",
-        "projectPath": "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj",
+        "projectPath": "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj",
         "packagesPath": "C:\\Users\\andry\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\andry\\Downloads\\ts2\\obj\\",
+        "outputPath": "C:\\Users\\andry\\Desktop\\tb\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\andry\\AppData\\Roaming\\NuGet\\NuGet.Config"

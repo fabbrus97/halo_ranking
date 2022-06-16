@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TaLDjeDukWkiee71BxeK3OiNsrv+vfuN+PHAxUYIX8yM04U4kuTCiPEMBkFd8qqRjCEZx9793mZd7qnCrFa71Q==",
+  "dgSpecHash": "THqZFDxqWE4+wsuiLgtT0nYjj+58OzXiUKHuGTa4Xbs+ukhuwOhcDGWcHBhWpLGq0u5F+2JjkLjH70Xa7rgheA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\andry\\Downloads\\ts2\\ts2.csproj",
+  "projectFilePath": "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\andry\\.nuget\\packages\\dnsclient\\1.6.0\\dnsclient.1.6.0.nupkg.sha512",
     "C:\\Users\\andry\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\2.6.1\\microsoft.codeanalysis.analyzers.2.6.1.nupkg.sha512",
