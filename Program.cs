@@ -183,9 +183,62 @@ namespace ts2
         }
       }
 
+      static void calcoloSkill(string moda_scelta){
+
+        Console.WriteLine("Hai scelto la modalità: "+moda_scelta);
+        var matches = getMatches(moda_scelta);
+        Console.WriteLine("Inizio calcolo dei parametri...");
+        var calc = new ParamsCalculator(matches);
+        var parcalc = new ParamsCalculator();
+        //TODO setta parametri a seconda della partita
+        var Players_arr = parcalc.players(matches).ToArray();
+        Console.WriteLine("Nella modalità "+moda_scelta+" ci sono "+Players_arr.Length+" players" );
+        Gaussian[] Skillls = new Gaussian[Players_arr.Length];
+        List<string> players_fino_ad_ora=  new List<string>();
+
+        var sublists = SplitToSublists(matches,50);
+        Console.WriteLine("Ci sono "+sublists.Count+" sublist");
+        var totale=0;
+        for(var i=0;i<sublists.Count;i=i+1){
+          Console.WriteLine("La sublist numero "+ i + " ha "+ sublists[i].Count+" match");
+          totale=totale+ sublists[i].Count;
+       }
+       Console.WriteLine("In totale ci sono "+totale+" match per la modalità "+moda_scelta );
 
 
 
+       for (int i=0;i<sublists.Count;i=i+1){
+         Console.WriteLine("Sto analizzando la sublist numero "+i);
+         parcalc.SetMatches(sublists[i]);
+         var appoggio_player = parcalc.players(sublists[i]).ToArray();
+         var arr_players_common = players_fino_ad_ora.Intersect(appoggio_player);
+         if(i>0){
+         Gaussian[] baseskills = new Gaussian[appoggio_player.Length];
+         Console.WriteLine("I giocatori già incontrati nei precedenti gruppi sono: "+arr_players_common.Count());
+         foreach(string item in arr_players_common){
+           baseskills[IndexOf(appoggio_player,item)]=Skillls[IndexOf(Players_arr,item)];}
+
+          parcalc.SetBaseSkills(baseskills);
+
+         }
+
+         var nomi_nuovi=appoggio_player.Except(arr_players_common).ToList();
+         foreach(string item in nomi_nuovi){
+           players_fino_ad_ora.Add(item);
+         }
+         var appoggio_skill = parcalc.ComputeSkills();
+         foreach(string item in appoggio_player){
+          Skillls[IndexOf(Players_arr,item)]= appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
+           }
+        updateMongo(sublists[i],appoggio_skill,appoggio_player);
+
+         Console.WriteLine("Nel sottogruppo "+ i+ " ho "+ appoggio_player.Length+" giocatori");
+         Console.WriteLine("Nel sottogruppo "+ i+ " ho "+  appoggio_skill.Length+" skills");
+         Console.WriteLine("Ora il numero di giocatori incontrati è "+players_fino_ad_ora.Count);
+
+       }
+
+     }
 
 
 
@@ -194,108 +247,17 @@ namespace ts2
         {
 
           string[] mode_array = new string[] { "CTF","Slayer","Strongholds","Oddball","One Flag CTF"};
-          string moda_scelta="Slayer";
-          var matches = getMatches(moda_scelta);
+          Console.WriteLine("Inserisci il nome delle modalità di gioco che vuoi analizzare, separate dalla virgola senza spazi");
+          string moda_utente = Console.ReadLine();
+          List<string> result = moda_utente.Split(',').ToList();
+
+          for(int i=0;i<result.Count;i=i+1) calcoloSkill(result[i]);
+
           //List<List<Match>> match_per_mode=split_match_mode(matches,mode_array);
-          int totale=0;
-
-          Console.WriteLine("In totale ci sono "+totale+" match");
-          Console.WriteLine("Inizio calcolo dei parametri...");
-            //Console.WriteLine(matches[0].team1.teammates[0].tag);
-            //Console.WriteLine(matches[0].mode);
-
-          var calc = new ParamsCalculator(matches);
-          var parcalc = new ParamsCalculator();
-          //TODO setta parametri a seconda della partita
-
-
-          var Players_arr = parcalc.players(matches).ToArray();
-          Console.WriteLine("Nella modalità "+moda_scelta+" ci sono "+Players_arr.Length+" players" );
-          Gaussian[] Skillls = new Gaussian[Players_arr.Length];
-          List<string> players_fino_ad_ora=  new List<string>();
 
 
 
-
-
-          var sublists = SplitToSublists(matches,50);
-          Console.WriteLine(sublists[0][0].team1.teammates[0].tag);
-          Console.WriteLine("IL TIPO è"+sublists.GetType());
-          Console.WriteLine("Ci sono "+sublists.Count+" sublist");
-          totale=0;
-
-
-          for(var i=0;i<sublists.Count;i=i+1){
-            Console.WriteLine("La sublist numero "+ i + " ha "+ sublists[i].Count+" match");
-            totale=totale+ sublists[i].Count;
-         }
-         Console.WriteLine("In totale ci sono "+totale+" match per la modalità "+moda_scelta );
-
-
-
-         for (int i=0;i<sublists.Count;i=i+1){
-           parcalc.SetMatches(sublists[i]);
-           var appoggio_player = parcalc.players(sublists[i]).ToArray();
-           var arr_players_common = players_fino_ad_ora.Intersect(appoggio_player);
-           if(i>0){
-           Gaussian[] baseskills = new Gaussian[appoggio_player.Length];
-           foreach(string item in arr_players_common){
-             Console.WriteLine(item);
-             baseskills[IndexOf(appoggio_player,item)]=Skillls[IndexOf(Players_arr,item)];}
-
-            parcalc.SetBaseSkills(baseskills);
-
-           }
-
-           var nomi_nuovi=appoggio_player.Except(arr_players_common).ToList();
-           foreach(string item in nomi_nuovi){
-             players_fino_ad_ora.Add(item);
-           }
-           var appoggio_skill = parcalc.ComputeSkills();
-           foreach(string item in appoggio_player){
-            Skillls[IndexOf(Players_arr,item)]= appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
-             }
-          updateMongo(sublists[i],appoggio_skill,appoggio_player);
-
-           Console.WriteLine("Nella sottogruppo"+ i+ "ho "+ appoggio_player.Length+" giocatori");
-           Console.WriteLine("Nella sottogruppo"+ i+ "ho "+  appoggio_skill.Length+" skills");
-           Console.WriteLine("Ora il numero di giocatori incontrati è"+players_fino_ad_ora.Count);
-         }
-
-
-
-
-
-
-
-
-
-/*
-            foreach (Gaussian item in baseskills){
-              Console.WriteLine(item);
-
-            }
-
-            foreach (string item in arr_players_common){
-              Console.WriteLine(item);
-                }
-
-
-
-
-            foreach (Gaussian item in skills){
-              Console.WriteLine(item);
-                }
-
-
-*/
-
-
-
-
-
-
-            //Console.WriteLine("Precisione previsioni partite: " + parcalc.predictAccuracy(matches2predict));
+          //Console.WriteLine("Precisione previsioni partite: " + parcalc.predictAccuracy(matches2predict));
 
 
 
