@@ -177,7 +177,7 @@ namespace ts2
           Console.WriteLine("Nella modalità "+mode_array[0]+" ci sono "+Players_arr.Length+" players" );
           Gaussian[] Skillls = new Gaussian[Players_arr.Length];
           List<string> players_fino_ad_ora=  new List<string>();
-          
+
 
 
 
@@ -212,9 +212,9 @@ namespace ts2
              players_fino_ad_ora.Add(item);
            }
            var appoggio_skill = parcalc.ComputeSkills();
-           //foreach(string item in appoggio_player){
-            //   Skillls[IndexOf(Players_arr,item)]= appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
-             //}
+           foreach(string item in appoggio_player){
+               Skillls[IndexOf(Players_arr,item)]= appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
+             }
 
            Console.WriteLine("Nella sottogruppo"+ i+ "ho "+ appoggio_player.Length+" giocatori");
            Console.WriteLine("Nella sottogruppo"+ i+ "ho "+  appoggio_skill.Length+" skills");
