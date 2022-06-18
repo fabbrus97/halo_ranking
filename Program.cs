@@ -1,4 +1,4 @@
-namespace ts2
+﻿namespace ts2
 {
     using System;
     using System.Linq;
@@ -19,15 +19,9 @@ namespace ts2
     class Program
     {
 
-        static double m0 = 3;           //definito nel paper di trueskill2
-        static double v0 = 1.6;         //definito nel paper di trueskill2
-        static double gamma = 10e-3;    //definito nel paper di trueskill2
-        static double gamma_sqr = 10e-5;
-        static double tau = 10e-8;      //definito nel paper di trueskill2
-        static double beta = 1;         //definito nel paper di trueskill2
-        static double beta_sqr = 1;
-        static double epsilon = 10e-3;  //definito nel paper di trueskill2
-
+        static string MONGO_STRING = "mongodb://hds:2wuzA5fRdGVwU2@192.168.1.16:27017/halo_infinite"; 
+        static string MONGO_DB = "halo_infinite"; 
+        static string MONGO_COLLECTION = "matches"; 
 
         static List<List<Match>> SplitToSublists(List<Match> source,int parametro)
         {
@@ -66,10 +60,16 @@ namespace ts2
 
         static List<Match> getMatches(string play_mode)
         {
-          var dbClient = new MongoClient("mongodb://127.0.0.1:27017");
-          IMongoDatabase db = dbClient.GetDatabase("dbTestHalo");
-          var Matches = db.GetCollection<BsonDocument>("Collection");
-          var o = Matches.Find(new BsonDocument()).ToList();
+
+          var dbClient = new MongoClient("mongodb://hds:2wuzA5fRdGVwU2@192.168.1.16:27017/halo_infinite");
+          IMongoDatabase db = dbClient.GetDatabase("halo_infinite");
+          var Matches = db.GetCollection<BsonDocument>("matches");
+          // var dbClient = new MongoClient("mongodb://127.0.0.1:27017");
+          // IMongoDatabase db = dbClient.GetDatabase("dbTestHalo");
+          // var Matches = db.GetCollection<BsonDocument>("Collection");
+
+          // var o = Matches.Find(new BsonDocument()).Limit(10).ToList();
+          var o = Matches.Find("{data: { $elemMatch : { 'match.details.gamevariant.name': 'Arena:" + play_mode + "'}}}").Limit(10).ToList(); //TODO
           var matches = new List<Match>();
 
 
@@ -158,9 +158,9 @@ namespace ts2
 
 
 
-        var dbClient = new MongoClient("mongodb://127.0.0.1:27017");
-        IMongoDatabase db = dbClient.GetDatabase("dbTestHalo");
-        var Matches = db.GetCollection<BsonDocument>("Collection");
+        var dbClient = new MongoClient(MONGO_STRING);
+        IMongoDatabase db = dbClient.GetDatabase(MONGO_DB);
+        var Matches = db.GetCollection<BsonDocument>(MONGO_COLLECTION);
 
         foreach (Match item in sottolista){
 
@@ -188,7 +188,6 @@ namespace ts2
         Console.WriteLine("Hai scelto la modalità: "+moda_scelta);
         var matches = getMatches(moda_scelta);
         Console.WriteLine("Inizio calcolo dei parametri...");
-        var calc = new ParamsCalculator(matches);
         var parcalc = new ParamsCalculator();
         //TODO setta parametri a seconda della partita
         var Players_arr = parcalc.players(matches).ToArray();
@@ -248,7 +247,8 @@ namespace ts2
 
           string[] mode_array = new string[] { "CTF","Slayer","Strongholds","Oddball","One Flag CTF"};
           Console.WriteLine("Inserisci il nome delle modalità di gioco che vuoi analizzare, separate dalla virgola senza spazi");
-          string moda_utente = Console.ReadLine();
+          // string moda_utente = Console.ReadLine();
+          string moda_utente = "CTF";
           List<string> result = moda_utente.Split(',').ToList();
 
           for(int i=0;i<result.Count;i=i+1) calcoloSkill(result[i]);

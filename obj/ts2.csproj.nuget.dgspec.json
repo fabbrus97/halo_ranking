@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj": {}
+    "/home/simone/github/halo_ranking/ts2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj": {
+    "/home/simone/github/halo_ranking/ts2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj",
+        "projectUniqueName": "/home/simone/github/halo_ranking/ts2.csproj",
         "projectName": "ts2",
-        "projectPath": "C:\\Users\\andry\\Desktop\\tb\\ts2.csproj",
-        "packagesPath": "C:\\Users\\andry\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\andry\\Desktop\\tb\\obj\\",
+        "projectPath": "/home/simone/github/halo_ranking/ts2.csproj",
+        "packagesPath": "/home/simone/.nuget/packages/",
+        "outputPath": "/home/simone/github/halo_ranking/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\andry\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/simone/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -66,7 +66,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.300/RuntimeIdentifierGraph.json"
         }
       }
     }

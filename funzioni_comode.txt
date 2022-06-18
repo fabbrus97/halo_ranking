@@ -1,0 +1,16 @@
+partite/numero partite per modalità
+ db.matches.find({data: { $elemMatch : { "match.details.gamevariant.name": "Arena:Oddball"}}}).size()
+
+ Modalità nel db:
+ db.matches.distinct("data.match.details.gamevariant.name")
+[
+  'Arena:Attrition',
+  'Arena:CTF',
+  'Arena:King of the Hill',
+  'Arena:Oddball',
+  'Arena:One Flag CTF',
+  'Arena:Slayer',
+  'Arena:Strongholds'
+]
+
+
