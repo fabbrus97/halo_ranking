@@ -12,7 +12,8 @@ namespace ts2
         public double killcount { get; set; }
         public double deathcount { get; set; }
         public bool quit { get; set; }
-        public TeamPlayer(string tag, double secondsPlayed, double joinTime, double endTime, double killcount, double deathcount, bool quit)
+        public bool bot { get; set; }
+        public TeamPlayer(string tag, double secondsPlayed, double joinTime, double endTime, double killcount, double deathcount, bool quit, bool isBot)
         {
             this.tag = tag;
             this.secondsPlayed = secondsPlayed;
@@ -21,6 +22,7 @@ namespace ts2
             this.killcount = killcount;
             this.deathcount = deathcount;
             this.quit = quit;
+            this.bot = isBot;
         }
     }
 }
