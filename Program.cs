@@ -112,8 +112,8 @@
 
 
 
-                  int kcount = (int)_match["players"][i]["perfomances"]["kills"]; //["data"][0]["match"]["players"][i]["stats"]["core"]["summary"]["kills"];
-                  int dcount = (int)_match["players"][i]["perfomances"]["death"]; //["data"][0]["match"]["players"][i]["stats"]["core"]["summary"]["deaths"];
+                  int kcount = (int)_match["players"][i]["performances"]["kills"]; //["data"][0]["match"]["players"][i]["stats"]["core"]["summary"]["kills"];
+                  int dcount = (int)_match["players"][i]["performances"]["death"]; //["data"][0]["match"]["players"][i]["stats"]["core"]["summary"]["deaths"];
 
                   // if (!(_match["data"][0]["match"]["players"][i]["participation"]["left_at"].GetType().ToString()=="MongoDB.Bson.BsonNull")){
                   if (!(_match["players"][i]["duration"]["left_at"].GetType().ToString()=="MongoDB.Bson.BsonNull")){
@@ -159,7 +159,7 @@
 
 
               string id = (string)_match["id"]; //["data"][0]["match"]["id"];
-              var played_at=(string)_match["data"][0]["match"]["played_at"];
+              var played_at=(string)_match["played_at"]; //["data"][0]["match"]["played_at"];
               var startTime = Math.Floor((DateTime.Parse( played_at).ToUniversalTime() - origin).TotalSeconds);
               // var startTime = Math.Floor(((DateTime.Parse( played_at.Substring(1, played_at.Length-2))).ToUniversalTime() - origin).TotalSeconds);
               var endTimeMatch = startTime + secondsPlayed;
@@ -176,7 +176,7 @@
 
 
 
-      static void updateMongo(List<Match> sottolista, Gaussian[] skills, string[] nomi){ //TODO cambia percorsi json
+      static void updateMongo(List<Match> sottolista, Gaussian[] skills, string[] nomi){ //TODO cambia percorsi
 
 
 
@@ -420,12 +420,12 @@
             }
           }
 
-          if (skip > 2000) // 36000 per ctf TODO bisogna calcolare il totale delle partite e la percentuale delle partite per le quali vogliamo calcolare l'accuracy
-          {
-            // parcalc.PredictAccuracy();
-            Console.WriteLine("☕☕☕☕☕☕☕☕☕☕☕☕☕☕☕☕");
-            Console.WriteLine("Accuracy: " + parcalc.predictAccuracy(matches));
-          }
+          // if (skip > 1000) // 36000 per ctf TODO bisogna calcolare il totale delle partite e la percentuale delle partite per le quali vogliamo calcolare l'accuracy
+          // {
+          //   // parcalc.PredictAccuracy();
+          //   Console.WriteLine("🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬");
+          //   Console.WriteLine("Accuracy: " + parcalc.predictAccuracy(matches));
+          // }
           var appoggio_skill = parcalc.ComputeSkills(timepassed, experience);
           foreach(string item in appoggio_player){
             // Skillls[Players_arr.IndexOf(item)] = appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
@@ -450,35 +450,66 @@
           skip += 1000;
           
           matches = getMatches(moda_scelta, skip);
+
+          checkPlayers(players_fino_ad_ora, matches);
         }
       
 
       }
 
+      static private void checkPlayers(List<string> old_players, List<Match> matches)
+      {
+        
+        int[] known_player_per_match = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-
-
-        static void Main(string[] args)
+        foreach (var match in matches)
         {
-
-          string[] mode_array = new string[] { "CTF","Slayer","Strongholds","Oddball","One Flag CTF"};
-          Console.WriteLine("Inserisci il nome delle modalità di gioco che vuoi analizzare, separate dalla virgola senza spazi");
-          // string moda_utente = Console.ReadLine();
-          // string moda_utente = "CTF";
-          string moda_utente = "King of the Hill";
-          List<string> result = moda_utente.Split(',').ToList();
-
-          for(int i=0;i<result.Count;i=i+1) calcoloSkill(result[i]);
-
-          //List<List<Match>> match_per_mode=split_match_mode(matches,mode_array);
-
-
-
-          //Console.WriteLine("Precisione previsioni partite: " + parcalc.predictAccuracy(matches2predict));
-
-
-
+          int known_players = 0;
+          foreach (var player in match.team1.teammates)
+          {
+            if (old_players.FindIndex( p => p.SequenceEqual(player.tag)) >= 0)
+              known_players += 1;
+            
+          }
+          foreach (var player in match.team2.teammates)
+          {
+            if (old_players.FindIndex( p => p.SequenceEqual(player.tag)) >= 0)
+              known_players += 1;
+          }
+          known_player_per_match[known_players]++;
         }
+
+        Console.WriteLine("🤬🤬🤬🤬🤬🤬🤬🤬🤬🤬🤬");
+        for (int i = 0; i < known_player_per_match.Length; i++)
+        {
+          var value = known_player_per_match[i];
+          Console.WriteLine($"\t i ===> {value}");  
+        }
+        
+      }
+
+
+      static void Main(string[] args)
+      {
+
+        string[] mode_array = new string[] { "CTF","Slayer","Strongholds","Oddball","One Flag CTF"};
+        Console.WriteLine("Inserisci il nome delle modalità di gioco che vuoi analizzare, separate dalla virgola senza spazi");
+        // string moda_utente = Console.ReadLine();
+        string moda_utente = "CTF";
+        // string moda_utente = "King of the Hill";
+        List<string> result = moda_utente.Split(',').ToList();
+
+        for(int i=0;i<result.Count;i=i+1) calcoloSkill(result[i]);
+
+        //List<List<Match>> match_per_mode=split_match_mode(matches,mode_array);
+
+
+
+        //Console.WriteLine("Precisione previsioni partite: " + parcalc.predictAccuracy(matches2predict));
+
+
+
+      }
 
 
     }
