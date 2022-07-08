@@ -5452,7 +5452,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.301/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/simone/.dotnet/sdk/6.0.202/RuntimeIdentifierGraph.json"
       }
     }
   }

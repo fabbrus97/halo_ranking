@@ -64,7 +64,7 @@
 
           Console.WriteLine("DEBUG Chiedo i match al dataset...");
 
-          var dbClient = new MongoClient("mongodb://hds:2wuzA5fRdGVwU2@192.168.1.16:27017/halo_infinite");
+          var dbClient = new MongoClient("mongodb://hds:2wuzA5fRdGVwU2@2.224.244.126:27017/halo_infinite");
           IMongoDatabase db = dbClient.GetDatabase("halo_infinite");
           var Matches = db.GetCollection<BsonDocument>("filteredmatches");
           // var dbClient = new MongoClient("mongodb://127.0.0.1:27017");
@@ -295,30 +295,67 @@
 
                 
               timepassed[i][0][k] = 0.0; //TODO se si analizzano le partite a batch di 1000, tra un batch e l'altro ci si perde l'ultima partita del giocatore
+              if (i == 0){
+                last_game_all_players[playerGlobalIndex] = matches[i].startTime;      
+                if (experience_all_players[playerGlobalIndex] == 0){
+                  experience[player][i] = 1;
+                  experience_all_players[playerGlobalIndex] = 1;
+                } else {
+                  experience[player][i] = experience_all_players[playerGlobalIndex];
+                }
+              }
               if (i > 0)
               {   
+                if (last_game_all_players[playerGlobalIndex] != 0)
+                  timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex];      
                   //search the last game of the player
-                  for (int s = 0; s < i ; s++)
-                  {
-                      var pl = matches[s].team1.teammates.FindIndex(t => t.tag == matches[i].team1.teammates[k].tag);
-                      if (pl < 0)
-                          pl = matches[s].team2.teammates.FindIndex(t => t.tag == matches[i].team1.teammates[k].tag);
-                      if (pl > 0)
-                      {
-                          if (arr_players_common.Contains(appoggio_player[i]))
-                            timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex]; 
-                          else
-                            timepassed[i][0][k] = matches[i].startTime - matches[s].startTime;
-                          last_game_all_players[playerGlobalIndex] = matches[i].startTime;
+                  /*if (last_game_all_players[playerGlobalIndex] == 0){
+                    for (int s = i-1; s >= 0 ; s--)
+                    {
+                        var pl = matches[s].team1.teammates.FindIndex(t => t.tag == matches[i].team1.teammates[k].tag);
+                        if (pl < 0)
+                            pl = matches[s].team2.teammates.FindIndex(t => t.tag == matches[i].team1.teammates[k].tag);
+                        if (pl > 0)
+                        {
+                          timepassed[i][0][k] = matches[i].startTime - matches[s].startTime; 
                           break;
-                      }
-
-                  }
+                          // if (arr_players_common.Contains(appoggio_player[i]))
+                          //   timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex]; 
+                          // else
+                          //   timepassed[i][0][k] = matches[i].startTime - matches[s].startTime;
+                          // last_game_all_players[playerGlobalIndex] = matches[i].startTime;
+                    
+                        }
+                      last_game_all_players[playerGlobalIndex] = matches[i].startTime;
+                    }
+                  } else {
+                    timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex];      
+                  }*/
+                last_game_all_players[playerGlobalIndex] = matches[i].startTime;
                   
-              }
               
+              
+                if (experience_all_players[playerGlobalIndex] == 0)
+                {
+                  for (int x = 0; x < i; x++)
+                    experience[player][x] = 0;
+                  experience[player][i] = 1;
+                }
+                else 
+                {
+                  if (experience[player][0] < 0) 
+                    experience[player][0] = experience_all_players[playerGlobalIndex];
+                  int x = 0;
+                  while(experience[player][x] >= 0)
+                    x++;
+                  for (int y = x; y < i; y++)
+                    experience[player][y] = experience[player][y-1];
+                  experience[player][i] = experience[player][i-1] + 1;
+                }
 
-              if (experience[player][0] < 0){ //TODO se si analizzano le partite a batch di 1000, tra un batch e l'altro ci si perde l'esperienza del giocatore
+                experience_all_players[playerGlobalIndex] += 1;
+              }
+              /*if (experience[player][0] < 0){                   
                   
                   if (arr_players_common.Contains(appoggio_player[i]))
                   {
@@ -351,71 +388,57 @@
                   experience[player][i] = experience[player][i-1] + 1;
 
                   experience_all_players[playerGlobalIndex] += 1;
-              }
+              }*/
             }
 
             for (int k = 0; k < matches[i].team2.nPlayers(); k++){
               var player = IndexOf(appoggio_player, matches[i].team2.teammates[k].tag);
               var playerGlobalIndex = players_fino_ad_ora.FindIndex(t => t == matches[i].team2.teammates[k].tag);
               
-              timepassed[i][1][k] = 0.0; //TODO se si analizzano le partite a batch di 1000, tra un batch e l'altro ci si perde l'ultima partita del giocatore
+              timepassed[i][1][k] = 0.0; 
+              if (i == 0){ //primo game del batch
+                last_game_all_players[playerGlobalIndex] = matches[i].startTime;      
+                if (experience_all_players[playerGlobalIndex] == 0){
+                  experience[player][i] = 1;
+                  experience_all_players[playerGlobalIndex] = 1;
+                } else {
+                  experience[player][i] = experience_all_players[playerGlobalIndex];
+                }
+              }
               if (i > 0)
               {   
-                  //search the last game of the player
-                  for (int s = 0; s < i ; s++)
-                  {
-                      var pl = matches[s].team1.teammates.FindIndex(t => t.tag == matches[i].team2.teammates[k].tag);
-                      if (pl < 0)
-                          pl = matches[s].team2.teammates.FindIndex(t => t.tag == matches[i].team2.teammates[k].tag);
-                      if (pl > 0)
-                      {
-                          if (arr_players_common.Contains(appoggio_player[i]))
-                            timepassed[i][1][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex]; 
-                          else
-                            timepassed[i][1][k] = matches[i].startTime - matches[s].startTime;
-                          last_game_all_players[playerGlobalIndex] = matches[i].startTime;
-
-                          // timepassed[i][0][k] = matches[i].startTime - matches[s].startTime;
-                          break;
-                      }
-
-                  }
+                if (last_game_all_players[playerGlobalIndex] != 0)
+                  timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex];      
                   
-              }
-              
-
-              if (experience[player][0] < 0){ //TODO se si analizzano le partite a batch di 1000, tra un batch e l'altro ci si perde l'esperienza del giocatore
-                  if (arr_players_common.Contains(appoggio_player[i]))
+                last_game_all_players[playerGlobalIndex] = matches[i].startTime;
+                      
+                if (experience_all_players[playerGlobalIndex] == 0)
+                {
+                  for (int x = 0; x < i; x++)
+                    experience[player][x] = 0;
+                  experience[player][i] = 1;
+                }
+                else 
+                {
+                  //abbiamo un giocatore con esperienza, ma per questo batch di partite non abbiamo ancora inizializzato
+                  // il suo array dell'esperienza
+                  if (experience[player][0] < 0) 
+                    experience[player][0] = experience_all_players[playerGlobalIndex];
+                  //altrimenti abbiamo un giocatore con esperienza che abbiamo già incontrato in questo batch
+                  int x = 0;
+                  while(experience[player][x] >= 0)
+                    x++;
+                  for (int y = x; y < i; y++)
                   {
-                    
-                    for (int x = 0; x < i; x++)
-                        experience[player][x] = experience_all_players[playerGlobalIndex];
-                    experience[player][i] = experience_all_players[playerGlobalIndex] + 1;
-
-                    experience_all_players[playerGlobalIndex] += 1;
-                  } 
-                  else 
-                  {
-                    for (int x = 0; x < i; x++)
-                        experience[player][x] = 0;
-                    experience[player][i] = 1;
-
-                    experience_all_players[playerGlobalIndex] = 1;
-                  }
-                  
-              }
-              else
-              {
-                  int searchMatch = 1; 
-                  while(searchMatch < i)
-                  {
-                      if (experience[player][searchMatch] < 0)    
-                          experience[player][searchMatch] = experience[player][searchMatch-1];
-                      searchMatch += 1;
+                    experience[player][y] = experience[player][y-1];
                   }
                   experience[player][i] = experience[player][i-1] + 1;
-
-                  experience_all_players[playerGlobalIndex] += 1;
+                  
+                  // for (int y = i; y < experience[player].Length; y++)
+                  //   experience[player][y] = experience[player][y-1];
+                }
+                
+                experience_all_players[playerGlobalIndex] += 1;
               }
             }
           }
