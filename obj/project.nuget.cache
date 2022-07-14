@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "oPiQR24IrZ7ZVBDfnzMWjqasmVHc/RJK1NgBXzwLTEFcttSebYaVlYyIAaJKv7mAmCSyHEeVO8bkdyrOR+4eow==",
+  "dgSpecHash": "KZSAtAnMqLX/InVw5kaxIfvyslIi2m75o2qsG8rC1mVl2hJ0WuJEW5ACXjbg0qI2C+BceUum0ro7vplNuDxCsA==",
   "success": true,
   "projectFilePath": "/home/simone/github/halo_ranking/ts2.csproj",
   "expectedPackageFiles": [
@@ -95,7 +95,10 @@
     "/home/simone/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512",
     "/home/simone/.nuget/packages/system.xml.xmldocument/4.3.0/system.xml.xmldocument.4.3.0.nupkg.sha512",
     "/home/simone/.nuget/packages/system.xml.xpath/4.3.0/system.xml.xpath.4.3.0.nupkg.sha512",
-    "/home/simone/.nuget/packages/system.xml.xpath.xdocument/4.3.0/system.xml.xpath.xdocument.4.3.0.nupkg.sha512"
+    "/home/simone/.nuget/packages/system.xml.xpath.xdocument/4.3.0/system.xml.xpath.xdocument.4.3.0.nupkg.sha512",
+    "/home/simone/.nuget/packages/microsoft.netcore.app.ref/6.0.6/microsoft.netcore.app.ref.6.0.6.nupkg.sha512",
+    "/home/simone/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.6/microsoft.aspnetcore.app.ref.6.0.6.nupkg.sha512",
+    "/home/simone/.nuget/packages/microsoft.netcore.app.host.linux-x64/6.0.6/microsoft.netcore.app.host.linux-x64.6.0.6.nupkg.sha512"
   ],
   "logs": []
 }
