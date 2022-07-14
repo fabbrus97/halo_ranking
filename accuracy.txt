@@ -1,9 +1,0 @@
-dopo 2000 partite: 25,2%
-
-
-dopo 36000 partite: 25,5%
-	dopo aver fixato il bug: 49.5% (0.5, 0.5)
-	modifica unrelated, related: 49.5% (0.7, 0.3)
-	modifica unrelated, related 2: 49.5% (0.3, 0.7)
-
-

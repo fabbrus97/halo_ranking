@@ -15,41 +15,25 @@ namespace ts2
 
     class ParamsCalculator
     {
-         /*
-            Parameters to tune:
-            m0,
-            v0,
-            γ,
-            eps
-
-
-            τ   = γ/10^5
-            β   = 1 (by design)
-
-         */
+         
         bool ParameterComputed;
         private bool testAccuracy;
-        double m0 = 3;
-        double v0 = 1.6;
-        double gamma = 10e-3;
-        double tau = 10e-8;
-        double beta = 1;
-        double epsilon = 10e-4;
+        double m0;
+        double v0;
+        double gamma;
+        double tau;
+        double beta;
+        double epsilon;
 
-	//CTF 49.5% accuracy
-        //double w_k_p = 1.1e-5, w_k_o = -9.1e-5, w_d_p = -1.1e-5, w_d_o = 7.5e-5, v_c = 1e-5; //54% accuracy without m_q, v_q
-	// test CTF
-        // double w_k_p = 1.1e-5, w_k_o = -9.1e-5, w_d_p = -2.1e-5, w_d_o = 9.5e-5, v_c = 1e-5; //54% accuracy without m_q, v_q
-	// test 2 CTF
-        double w_k_p = 1.9*10e-6;
-        double w_k_o = -9.5*10e-6;
-        double w_d_p = -8.5*10e-6;
-        double w_d_o = 1.1*10e-6;
-        double v_c = 1*10e-6; //54% accuracy without m_q, v_q
-        double m_q = 1.5*10e-6;
-        double v_q = 1*10e-6;
-        double unrelated = 0.5;
-        double related = 0.5;
+	    double w_k_p;
+        double w_k_o;
+        double w_d_p;
+        double w_d_o;
+        double v_c;
+        double m_q;
+        double v_q;
+        double unrelated;
+        double related;
         Range nMatches;
         Range nPlayers;
         Range nTeamsPerMatch;
@@ -81,7 +65,7 @@ namespace ts2
         const int N_INTERATIONS = 1000;
 
 
-        // Gaussian[] skills;
+        
 
         private List<Match> matches ;
 
@@ -96,7 +80,6 @@ namespace ts2
         {
             if (matches == null)
                 matches = this.matches;
-            //TODO usare hash?
             var players = new List<string>();
             foreach (var m in matches)
             {
@@ -173,11 +156,7 @@ namespace ts2
             experienceVariable.ObservedValue = experienceObserved;
             humanPlayersVariable.ObservedValue = humanPlayersObserved;
 
-            Console.WriteLine("\n");
-            Console.WriteLine("@@@@@@@@@ Observed Variables @@@@@@@@@");
-            Console.WriteLine($"matchData size: {matchData.Count()} players: {nPlayersObserved} matchTime: {matchTimeObserved.Count()} experienceVariable: {experienceObserved.Count()}" );
-            Console.WriteLine("\n");
-
+            
             var experienceOffset = new double[200];
             var exp = 0.01;
             for (int i = 0; i < 200; i += 1 )
@@ -198,28 +177,15 @@ namespace ts2
 
         private void setSkills()
         {
-            Console.WriteLine("Setto skills...");
+            
             skillsVariable = Variable.Array<double>(nPlayers);
             skillsVarianceVariable = Variable.Array<double>(nPlayers);
-            Console.WriteLine("m0 v0: " + m0 + " " + v0);
+            
             int i = 0, m0v0 = 0;
-            int _nPlayers = players(null).Count(); //TODO inefficiente
+            int _nPlayers = players(null).Count(); 
             var skillsArray = new double[_nPlayers];
             var varianceArray = new double[_nPlayers];
-            // skillsVariable[nPlayers] = Variable.GaussianFromMeanAndVariance(m0, v0).ForEach(nPlayers); //TODO
-
-            // Gaussian conf = new Gaussian();
-
-            /*using (var player = Variable.ForEach(nPlayers))
-            {
-                // if (!(BaseSkills[i].Equals(conf)))
-                if (!(BaseSkills[i].IsUniform()))
-                    skillsVariable[player.Index] = Variable.GaussianFromMeanAndVariance(BaseSkills[i].GetMean(), BaseSkills[i].GetVariance());
-                else
-                    skillsVariable[player.Index] = Variable.GaussianFromMeanAndVariance(m0, v0);
-                i += 1;
-            }*/
-
+            
             foreach (Gaussian skill in BaseSkills)
             {
 
@@ -227,20 +193,16 @@ namespace ts2
                 {
                     try
                     {
-                        //Console.WriteLine("Skill esistente: " + skill.GetMean() + " " + skill.GetVariance());
-                        // skillsVariable[i].SetTo(Variable.GaussianFromMeanAndVariance(skill.GetMean(), skill.GetVariance()));
                         skillsArray[i] = skill.GetMean();
                         varianceArray[i] = skill.GetVariance();
                     } catch (Microsoft.ML.Probabilistic.Distributions.ImproperDistributionException e)
                     {
                         Console.WriteLine("eccezione! \n" + e.StackTrace);
-                        //skillsVariable[i] = Variable.GaussianFromMeanAndVariance(m0, v0);
                     }
 
                 }
                 else
                 {
-                    //Console.WriteLine("Nuovo giocatore: " + m0 + " " + v0);
                     skillsArray[i] = m0;
                     varianceArray[i] = v0;
                     m0v0 += 1;
@@ -252,7 +214,6 @@ namespace ts2
             }
             skillsVariable.ObservedValue = skillsArray;
             skillsVarianceVariable.ObservedValue = varianceArray;
-            Console.WriteLine("Ho settato " + i + " skill (m0v0: " + m0v0 + ")");
         }
 
         public Gaussian[] ComputeSkills(double[][][] timepassed, int[][] playersExperience, int predictOffset, out int correct)
@@ -269,22 +230,12 @@ namespace ts2
             double[][][] deathcount = new double[matches.Count()][][];
             double[][][] killcount = new double[matches.Count()][][];
             bool[][][] quit = new bool[matches.Count()][][];
-            // double[][][] timepassed = new double[matches.Count()][][];
-            // int[][] playersExperience = new int[nPlayers][];
             int[] humanPlayers = new int[nPlayers]; //1: umano; 0: bot
 
             var gameInPlayersList = new List<List<int>>();
             for (int i = 0; i < nPlayers; i++)
             {
                 gameInPlayersList.Add(new List<int>());
-                // playersExperience[i] = new int[matches.Count()];
-                //FIXME: è un po' uno spreco di memoria perché mi salvo l'esperienza per ogni partita
-                //quindi se tra le partite 200 e 300 il giocatore non gioca, mi salvo comunque 100 volte
-                //lo stesso livello di esperienza (perché non cambia - perché il giocatore non ha giocato)
-                // for (int j = 0; j < matches.Count(); j++)
-                // {
-                //     playersExperience[i][j] = -1;
-                // }
             }
 
 
@@ -324,9 +275,6 @@ namespace ts2
                 playersInGame[i][0] = new int[matches[i].team1.nPlayers()];
                 playersInGame[i][1] = new int[matches[i].team2.nPlayers()];
 
-                // timepassed[i] = new double [2][];
-                // timepassed[i][0] = new double[matches[i].team1.nPlayers()];
-                // timepassed[i][1] = new double[matches[i].team2.nPlayers()];
 
                 for (int k = 0; k < matches[i].team1.nPlayers(); k++){
                     var player = _players.FindIndex(t => t == matches[i].team1.teammates[k].tag);
@@ -391,45 +339,26 @@ namespace ts2
             correct = 0;
             if (this.ParameterComputed)
             {
-                Console.WriteLine("Calcolo skills (parametri già calcolati)");
-                
-                Console.WriteLine("🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬");
+                // Console.WriteLine("Calcolo skills (parametri già calcolati)");
                 correct = predictAccuracy(matches, predictOffset);
-                Console.WriteLine("Accuracy: " + ((double)correct/(matches.Count() - predictOffset))); //TODO coincide con overalla accuracy?
+                // Console.WriteLine("Accuracy: " + ((double)correct/(matches.Count() - predictOffset))); 
 
                 skills = augmentVarianceTau(nPlayers); 
                 SetBaseSkills(skills); setSkills();
 
                 skills = InferSkills();
-                // Console.WriteLine("Inizio setbaseskillz");
                 SetBaseSkills(skills); setSkills();
-                // Console.WriteLine("setbaseskillz fatto");
 
-                Console.WriteLine("Inizio applicazione gamma"); 
                 skills = augmentVarianceGamma(nPlayers);
-                Console.WriteLine("Calcolo skillz terminato"); 
             }
             else{
 
                 ParameterComputed = true;
-                // skills = inferTau(nPlayers);
-                // SetBaseSkills(skills); setSkills();
                 skills = InferSkillsAndParameters(matches.Count(), nPlayers);
                 SetBaseSkills(skills); setSkills(); 
                 skills = inferGamma(nPlayers);
             }
 
-
-            //DEBUG:
-            int skillNotSet = 0;
-            foreach (var skill in skills)
-            {
-                if (skill.GetMean() == m0)
-                    skillNotSet += 1;
-            }
-
-            Console.WriteLine($"DEBUG ci sono {skillNotSet} skill non settate");
-            
             return skills;
         }
 
@@ -437,17 +366,14 @@ namespace ts2
         Gaussian[] InferSkillsAndParameters(int nMatchesObserved, int nPlayersObserved)
         {
 
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1151, 927*927).Named("m0"); //generico
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1493, 1228*1228).Named("m0"); //oddball
-            // var _m0 = Variable.GaussianFromMeanAndVariance(670, 688*688).Named("m0"); //one flag ctf
-            //var _m0 = Variable.GaussianFromMeanAndVariance(1034, 712*712).Named("m0"); //slayer
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1114, 893*893).Named("m0"); //CTF
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1800, 3500*3500).Named("m0"); //CTF funzionante
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1800, 2700*2700).Named("m0"); //slayer funzionante
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1267, 822*822).Named("m0"); //koth
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1326, 914*914).Named("m0"); //strongholds
-            // var _m0 = Variable.GaussianFromMeanAndVariance(1400, 1500*1500).Named("m0"); //strongholds funzionante
-            var _m0 = Variable.GaussianFromMeanAndVariance(1258, 900*900).Named("m0"); // slayer sperimentale
+        var _m0 = Variable.GaussianFromMeanAndVariance(1151, 927*927).Named("m0"); //generico
+        // var _m0 = Variable.GaussianFromMeanAndVariance(1493, 1228*1228).Named("m0"); //oddball
+        // var _m0 = Variable.GaussianFromMeanAndVariance(670, 688*688).Named("m0"); //one flag ctf
+        // var _m0 = Variable.GaussianFromMeanAndVariance(1800, 3500*3500).Named("m0"); //CTF
+        // var _m0 = Variable.GaussianFromMeanAndVariance(1800, 2700*2700).Named("m0"); //slayer
+        // var _m0 = Variable.GaussianFromMeanAndVariance(1267, 822*822).Named("m0"); //koth
+        // var _m0 = Variable.GaussianFromMeanAndVariance(1400, 1500*1500).Named("m0"); //strongholds
+
 	    var _p0 = Variable.GammaFromShapeAndScale(0.5,0.02).Named("p0");
             var _drawMargin = Variable.GaussianFromMeanAndVariance(1258, 900*900).Named("Epsilon");
             var _w_k_p = Variable.GaussianFromMeanAndVariance(1258, 900*900).Named("_w_k_p");
@@ -458,8 +384,6 @@ namespace ts2
             var _m_q = Variable.GaussianFromMeanAndVariance(1258, 900*900).Named("_m_q");
             var _v_q = Variable.GammaFromShapeAndScale(0.5,0.02).Named("_v_q");
 
-            // double alpha = 2.0, beta = 5.0;
-            // double alpha = 1.0, beta = 3.0;
             double alpha = 2, beta = 2;
             var mean = alpha/(alpha+beta);
             var variance = (alpha*beta)/(Math.Pow(alpha + beta, 2)*(alpha+beta+1));
@@ -494,11 +418,8 @@ namespace ts2
             _rel.AddAttribute(new PointEstimate());
             _rel.AddAttribute(new ListenToMessages());
 
-            // skillsVariable[nPlayers] = Variable.GaussianFromMeanAndPrecision(m0, 1/v0).ForEach(nPlayers); // same prior for each player
             skillsVariable[nPlayers] = Variable.GaussianFromMeanAndPrecision(_m0, _p0).ForEach(nPlayers); // same prior for each player
 
-            // Variable.ConstrainPositive(_drawMargin);
-            // Variable.ConstrainPositive(_m0);
 
             using (var match = Variable.ForEach(nMatches))
             {
@@ -527,7 +448,6 @@ namespace ts2
 
                         var mean_play_time_team = Variable.Sum(playerTime[nMatches][nTeamsPerMatch].Named("player time m, t"))/matchTime[nMatches].Named("Match time m");
                         mean_play_time_team.Named("Avg play time team");
-                        // var b = v_c*playerTime[nMatches][nTeamsPerMatch][nPlayersPerTeam];
                         var b = _v_c*playerTime[nMatches][nTeamsPerMatch][nPlayersPerTeam];
                         b.Named("vc * p time");
                         var ptime = playerTime[nMatches][nTeamsPerMatch][player.Index];
@@ -554,25 +474,22 @@ namespace ts2
 
                         //kill count
                         var karg = _w_k_p*pPerf + _w_k_o*perf_opposing;
-                        // var karg = w_k_p*pPerf + w_k_o*perf_opposing;
                         var kill = (karg)*ptime;
                         kill.Named("kill count m, t, n");
                         killcount[nMatches][team.Index][nPlayersPerTeam] = Variable.Max(0, Variable.GaussianFromMeanAndPrecision(kill, b));
 
                         //death count
-                        // var darg = w_d_p*pPerf + w_d_o*perf_opposing;
+                        
                         var darg = _w_d_p*pPerf + _w_d_o*perf_opposing;
                         var death = (darg)*ptime;
                         death.Named("death count m, t, n");
                         deathcount[nMatches][team.Index][nPlayersPerTeam] = Variable.Max(0, Variable.GaussianFromMeanAndPrecision(death, b));
 
                         //is the player underperforming? (for quit penalty)
-                        // var under = (Variable.GaussianFromMeanAndPrecision(pPerf - perf_opposing - m_q, v_q) < 0);
                         var under = (Variable.GaussianFromMeanAndPrecision(pPerf - perf_opposing - _m_q, _v_q) < 0);
                         under.Named("Under performing"); 
 
                         //quit penalty
-                        // quit[nMatches][nTeamsPerMatch][nPlayersPerTeam] = unrelatedVariable | (relatedVariable & under);
                         quit[nMatches][nTeamsPerMatch][nPlayersPerTeam] = _unrVar | (_relVar & under);
                     }
                 }
@@ -583,24 +500,19 @@ namespace ts2
 
                 using(Variable.Case(outcomes[n].Named("team1wins"), 0))
                 {
-                    // Variable.ConstrainTrue(diff > epsilon);
                     Variable.ConstrainTrue(diff > _drawMargin);
                 }
 
                 using(Variable.Case(outcomes[n].Named("team2wins"), 1))
                 {
-                    // Variable.ConstrainTrue(diff < -epsilon);
                     Variable.ConstrainTrue(diff < -_drawMargin);
                 }
 
                 using (Variable.Case(outcomes[n].Named("draw"), 2))
                 {
-                    // using (Variable.If( diff >= 0))
-                    // Variable.ConstrainBetween(diff, -epsilon, epsilon);
 
                     Variable.ConstrainTrue(diff <= _drawMargin);
                     Variable.ConstrainTrue(diff >= -_drawMargin);
-                    // Variable.ConstrainBetween(diff, -_drawMargin, _drawMargin);
 
                 }
 
@@ -637,7 +549,6 @@ namespace ts2
             Console.WriteLine("inferredDrawMargin: " + inferredDrawMargin);
 
             this.epsilon = Math.Max(10e-5, inferredDrawMargin.Point);
-            // this.epsilon = _drawMargin;
             this.m0 = inferredm0.Point;
             this.v0 = 1/inferredp0.Point;
             this.w_k_p = inferred_w_k_p.Point;
@@ -672,7 +583,6 @@ namespace ts2
             {
                 _skillsVariable[p.Index] = Variable.GaussianFromMeanAndPrecision(skillsVariable[p.Index], skillsVarianceVariable[p.Index]);
             }
-            // _skillsVariable[nPlayers] = Variable.GaussianFromMeanAndPrecision(skillsVariable[nPlayers], 1/v0).ForEach(nPlayers);
 
             using (var match = Variable.ForEach(nMatches))
             {
@@ -686,7 +596,6 @@ namespace ts2
                         var playerIndex = matchesVariable[nMatches][nTeamsPerMatch][nPlayersPerTeam];
                         playerIndex.Named("PlayerIndex");
 
-                        // var dampedSkill = Variable<double>.Factor(Damp.Backward, _skillsVariable[playerIndex], 0.50).Named("Damped skill");
                         playerPerformance[nTeamsPerMatch][nPlayersPerTeam] = (Variable.GaussianFromMeanAndPrecision(_skillsVariable[playerIndex], 1).Named("perf from ds")*playerTime[nMatches][nTeamsPerMatch][nPlayersPerTeam].Named("player n Time")).Named("perf n,m")/matchTime[nMatches].Named("match m Time");
                     }
                 }
@@ -749,8 +658,6 @@ namespace ts2
 
                 using (Variable.Case(outcomes[n].Named("draw"), 2))
                 {
-                    // Variable.ConstrainBetween(diff, -epsilon, epsilon);
-
                     Variable.ConstrainTrue(diff <= epsilon);
                     Variable.ConstrainTrue(diff >= -epsilon);
                 }
@@ -790,73 +697,8 @@ namespace ts2
             return inferredSkills;
         }
 
-
-        private Gaussian[] inferTau(int nPlayersObserved)
-        {
-            // skillti ∼ N (skillti , τ 2 (t0 − t))
-            var skillsArray = new double[nPlayersObserved];
-            for (int i = 0; i < nPlayersObserved; i++ )
-            {
-                skillsArray[i] = this.BaseSkills[i].GetMean();
-            }
-
-            var _tau = Variable.GammaFromShapeAndScale(1,1).Named("_tau");
-            _tau.AddAttribute(new PointEstimate());
-            _tau.AddAttribute(new ListenToMessages());
-
-            //"reset" of the variable
-            var skillsVariable     = Variable.Array<double>(nPlayers).Named("infer tau (skills)"); //TODO rinomina variabili
-
-
-            // var matches = Variable.Array(Variable.Array(Variable.Array<int>(nPlayersPerTeam), nTeamsPerMatch), nMatches).Named("matches");
-            // var skills = Variable.Array<double>(nPlayers);
-
-            using (Variable.ForEach(nMatches))
-            {
-                using (Variable.ForEach(nTeamsPerMatch))
-                {
-                    using (Variable.ForEach(nPlayersPerTeam))
-                    {
-
-                        var timepassed = timePassedVariable[nMatches][nTeamsPerMatch][nPlayersPerTeam];
-
-                        var playerIndex = matchesVariable[nMatches][nTeamsPerMatch][nPlayersPerTeam];
-
-                        using(Variable.Case(humanPlayersVariable[playerIndex], 1))
-                        {
-                            var dampedSkill = Variable<double>.Factor(Damp.Backward, skillsVariable[playerIndex], 0.50);
-
-                            skillsVariable[playerIndex] = Variable.GaussianFromMeanAndPrecision(dampedSkill, _tau*_tau*timepassed);
-                        }
-                    }
-
-
-                }
-            }
-
-            skillsVariable.ObservedValue = skillsArray;
-
-            var inferenceEngine = new InferenceEngine
-            {
-                ShowFactorGraph = false,
-                NumberOfIterations = N_INTERATIONS,
-                ShowProgress = false,
-                ShowWarnings = false
-            };
-
-            var inferredSkills = inferenceEngine.Infer<Gaussian[]>(skillsVariable);
-            var inferredtau = inferenceEngine.Infer<Gamma>(_tau);
-
-            Console.WriteLine(" \nInferenza di Tau:");
-            Console.WriteLine(inferredtau + $"({1/inferredtau.Point})");
-            this.tau = 1/inferredtau.Point; 
-
-            return inferredSkills;
-        }
-
         private Gaussian[] augmentVarianceTau(int nPlayersObserved)
         {
-            // skillti ∼ N (skillti , τ 2 (t0 − t))
             
 
             var _skillsVariable     = Variable.Array<double>(nPlayers);
@@ -904,32 +746,15 @@ namespace ts2
         Gaussian[] inferGamma(int nPlayersObserved)
         {
 
-            /*var skillsArray = new double[nPlayersObserved];
-            for (int i = 0; i < nPlayersObserved; i++ )
-            {
-                skillsArray[i] = this.BaseSkills[i].GetMean();
-            }*/
-
+            
             var _skillsVariable     = Variable.Array<double>(nPlayers);
-            // _skillsVariable[nPlayers] = Variable.New<double>().ForEach(nPlayers);
             _skillsVariable[nPlayers] = skillsVariable[nPlayers];
-            // using(var p = Variable.ForEach(nPlayers))
-            // {
-                
-            //     _skillsVariable[p.Index] = (Variable.GaussianFromMeanAndPrecision(skillsVariable[p.Index], skillsVarianceVariable[p.Index]));
-            // }
-
+            
             var _gamma = Variable.GammaFromShapeAndScale(1,1).Named("_gamma");
-            // var _gamma = Variable.GaussianFromMeanAndPrecision(0, 100);
             _gamma.AddAttribute(new PointEstimate());
             _gamma.AddAttribute(new ListenToMessages());
 
-            //"reset" of the variable
-            // var skillsVariable     = Variable.Array<double>(nPlayers).Named("infer gamma (skills)");
-
-            // var matches = Variable.Array(Variable.Array(Variable.Array<int>(nPlayersPerTeam), nTeamsPerMatch), nMatches).Named("matches");
-            // var skills = Variable.Array<double>(nPlayers);
-
+            
             // Inferenza di Gamma
             using (Variable.ForEach(nMatches))
             {
@@ -940,20 +765,6 @@ namespace ts2
 
                         var playerIndex = matchesVariable[nMatches][nTeamsPerMatch][nPlayersPerTeam];
                         var dampedSkill = Variable<double>.Factor(Damp.Backward, skillsVariable[playerIndex], 0.50);
-                        // var newSkill = Variable.New<double>();
-
-
-                        
-                        // using(Variable.Case(humanPlayersVariable[playerIndex], 1))
-                        // {
-                        //     skillsVariable[playerIndex] = Variable.GaussianFromMeanAndPrecision(dampedSkill
-                        //         + experienceOffsetVariable[Variable<double>.Min(199, experienceVariable[playerIndex][nMatches])], _gamma);
-                        //         // + experienceOffsetVariable[Variable<double>.Min(199, experienceVariable[playerIndex][nMatches])], _gamma*_gamma);
-                        // }
-                        // using(Variable.Case(humanPlayersVariable[playerIndex], 0))
-                        // {
-                        //     newSkill.SetTo(skillsVariable[playerIndex]);
-                        // }
                         
                         skillsVariable[playerIndex] = (Variable.GaussianFromMeanAndPrecision(dampedSkill
                                 + experienceOffsetVariable[Variable<double>.Min(199, experienceVariable[playerIndex][nMatches])], _gamma*_gamma));
@@ -963,10 +774,6 @@ namespace ts2
 
                 }
             }
-
-            // Variable.ConstrainTrue( _gamma/tau == 10e5 );
-
-            // skillsVariable.ObservedValue = skillsArray;
 
             var inferenceEngine = new InferenceEngine
             {
@@ -993,10 +800,6 @@ namespace ts2
             var _skillsVariable     = Variable.Array<double>(nPlayers);
             _skillsVariable[nPlayers] = skillsVariable[nPlayers];
 
-
-            //"reset" of the variable
-            // var skillsVariable     = Variable.Array<double>(nPlayers).Named("skills (gamma)");
-
             using (Variable.ForEach(nMatches))
             {
                 using (Variable.ForEach(nTeamsPerMatch))
@@ -1015,11 +818,8 @@ namespace ts2
                             skillsVariable[playerIndex] = Variable.GaussianFromMeanAndPrecision(dampedSkill
                                 + experienceOffsetVariable[Variable<double>.Min(199, experienceVariable[playerIndex][nMatches])], gamma);
                         }
-                        // var dampedSkill = Variable<double>.Factor(Damp.Backward, _skillsVariable[playerIndex], 0.50);
 
 
-                        // skillsVariable[playerIndex] = Variable.GaussianFromMeanAndPrecision(dampedSkill
-                        //     + experienceOffsetVariable[Variable<double>.Min(199, experienceVariable[playerIndex][nMatches])], gamma*gamma);
                     
                     }
 
@@ -1027,7 +827,6 @@ namespace ts2
                 }
             }
 
-            // skillsVariable.ObservedValue = skillsArray;
 
             var inferenceEngine = new InferenceEngine
             {
@@ -1064,9 +863,7 @@ namespace ts2
                         playerIndex.Named("PlayerIndex");
 
                         //player perfomance in current game
-                        // var dampedSkill = Variable<double>.Factor(Damp.Backward, skillsVariable[playerIndex], 0.50);
                         playerPerformance[nTeamsPerMatch][nPlayersPerTeam] = (Variable.GaussianFromMeanAndPrecision(skillsVariable[playerIndex], 1)*playerTime[nMatches][nTeamsPerMatch][nPlayersPerTeam])/matchTime[nMatches];
-                        // playerPerformance[nTeamsPerMatch][nPlayersPerTeam] = (Variable.GaussianFromMeanAndPrecision(dampedSkill, 1)*playerTime[nMatches][nTeamsPerMatch][nPlayersPerTeam])/matchTime[nMatches];
                     }
                 }
 
@@ -1075,21 +872,6 @@ namespace ts2
 
                 var diff = (Variable.Sum(playerPerformance[0]) - Variable.Sum(playerPerformance[1]));
                 _outcomes[n] = diff;
-                // using(Variable.If(diff > epsilon))  //team 1 wins
-                // {
-                //     _outcomes[n] = 0.0;
-                // }
-
-                // using(Variable.If(diff < -epsilon)) //team 2 wins
-                // {
-                //     _outcomes[n] = 1.0;
-                // }
-
-                // using (Variable.If((diff <= epsilon) & (diff >= -epsilon))) //draw
-                // {
-                //     _outcomes[n] = 2.0;
-                // }
-
 
 
             }
@@ -1117,18 +899,14 @@ namespace ts2
 
             List<string> skill_players = players(match2predictList);
             var skills = new double[skill_players.Count()];
-            int knownSkill = 0;
             for (int i = 0; i < skills.Count(); i++)
             {
                 if (!BaseSkills[i].IsUniform()){
-                    knownSkill += 1;
                     skills[i] = BaseSkills[i].GetMean();
                 }
                 else
                     skills[i] = m0;
             }
-
-            Console.WriteLine("===> DEBUG le skill note date dalle precedenti partite sono: " + knownSkill + " su " + skills.Count() + " settate");
 
             var _players = players(match2predictList);
 
@@ -1169,133 +947,6 @@ namespace ts2
 
 
             var accuracy = 0.0;
-
-        /*
-            var correctPredictions = 0.0;
-
-            int predT1win = 0;
-            int predT2win = 0;
-            int predDraw = 0;
-            int predDrawTotal = 0;
-            int predT1winTotal = 0;
-            int predT2winTotal = 0;
-            int unknownteams1 = 0;
-            int unknownteams2 = 0;
-            int unknownmatch = 0;
-
-            int winT1 = 0; int winT2 = 0; int draw = 0;
-
-            for (int m = 0; m < match2predict.Count(); m++)
-            {
-                double expectedPerfT1 = 0.0;
-                double expectedPerfT2 = 0.0;
-
-                bool unknownteam1 = true;
-                bool unknownteam2 = true;
-
-                for(int p = 0; p < match2predict[m][0].Count(); p++)
-                {
-                    var pl = _players[match2predict[m][0][p]];
-                    var index = skill_players.FindIndex(0, skill_players.Count(), tag => tag == pl);
-                    // Console.WriteLine("DEBUG " + skills[index]);
-
-                    if (index > 0){
-                        var _sk = new Gaussian(skills[index].GetMean(), 1).GetMean();
-                        expectedPerfT1 += _sk;
-                        unknownteam1 = _sk == 3;
-                    }
-                    else {
-                        expectedPerfT1 += new Gaussian(m0, 1).GetMean();
-                    }
-                }
-
-                for(int p = 0; p < match2predict[m][1].Count(); p++)
-                {
-                    var pl = _players[match2predict[m][1][p]];
-                    var index = skill_players.FindIndex(0, skill_players.Count(), tag => tag == pl);
-                    // Console.WriteLine("DEBUG " + skills[index]);
-
-
-                    if (index > 0){
-                        var _sk = new Gaussian(skills[index].GetMean(), 1).GetMean();
-                        expectedPerfT2 += _sk;
-                        unknownteam2 = _sk == 3;
-                    }
-                    else {
-                        expectedPerfT2 += new Gaussian(m0, 1).GetMean();
-                    }
-                }
-
-
-                if (unknownteam1){
-                    unknownteams1 += 1;
-                }
-                if (unknownteam2){
-                    unknownteams2 += 1;
-                }
-
-                if (unknownteam1 && unknownteam2){
-                    unknownmatch += 1;
-                    continue;
-                }
-
-                //DEBUG
-                if (m%100 == 0){
-                    Console.WriteLine("Perfomance t1: " + expectedPerfT1 + " Performance t2: " + expectedPerfT2);
-                }
-
-                if (outcomes[m] == 0 )
-                    winT1 += 1;
-
-                if (outcomes[m] == 1 )
-                    winT2 += 1;
-
-                if (outcomes[m] == 2 )
-                    draw += 1;
-
-                var diff = expectedPerfT1 - expectedPerfT2;
-
-
-
-                if ( diff > this.epsilon && outcomes[m] == 0)
-                {
-                    correctPredictions += 1;
-                    predT1win += 1;
-                }
-                if ( diff < -this.epsilon && outcomes[m] == 1)
-                {
-                    correctPredictions += 1;
-                    predT2win += 1;
-                }
-                if (diff <= this.epsilon && diff >= -this.epsilon && outcomes[m] == 2)
-                {
-                    correctPredictions += 1;
-                    predDraw += 1;
-                }
-
-                if ( diff > this.epsilon)
-                {
-                    predT1winTotal += 1;
-                }
-                if ( diff < -this.epsilon)
-                {
-                    predT2winTotal += 1;
-                }
-                if (diff <= this.epsilon && diff >= -this.epsilon)
-                {
-                    predDrawTotal += 1;
-                }
-
-
-
-            }
-
-            Console.WriteLine($"DEBUG {predT1win}/{winT1} {predT2win}/{winT2} {predDraw}/{draw}");
-            Console.WriteLine($"DEBUG total team1 win: {predT1winTotal} team2 win: {predT2winTotal} draw: {predDrawTotal}");
-            Console.WriteLine($"DEBUG unknown teams: {unknownteams1 + unknownteams2} in the same game: { unknownmatch }");
-            accuracy = correctPredictions/(winT1 + winT2 + draw);
-            // accuracy = correctPredictions/outcomes.Count();
-        */
 
             double predictedDraws = 0, predictedWinT1 = 0, predictedWinT2 = 0, winT1 = 0, winT2 = 0, draw = 0,
                 correctPredictedWinT1 = 0, correctPredictedWinT2 = 0;
@@ -1367,7 +1018,6 @@ namespace ts2
                 matchIndex += 1; 
             }
           
-            // matchWithNPlayers[0] = 1 giocatore noto, matchWithNPlayers[1] = 2 giocatori noti, ... matchWithNPlayers[3] = 4+ giocatori noti
             var predictedOutcomes = predictOutcomes(skills);
 
             double pred1Player = 0;
@@ -1439,10 +1089,7 @@ namespace ts2
                             
                             break;
                     }
-                } /*else if (outcomes[i] == 0 && !(predictedOutcomes[i].Point > epsilon))
-                {
-                    Console.WriteLine("Ho sbagliato la predizione perché epsilon vale " + epsilon + " e la mia stima della perf è " + predictedOutcomes[i].Point);
-                }*/
+                } 
 
                 if (outcomes[i] == 1 && (predictedOutcomes[i].Point < -epsilon)){
                     correctPredictedWinT2 += 1;
@@ -1481,10 +1128,7 @@ namespace ts2
                             
                             break;
                     }
-                } /*else if (outcomes[i] == 0 && !(predictedOutcomes[i].Point < -epsilon))
-                {
-                    Console.WriteLine("Ho sbagliato la predizione perché epsilon vale " + epsilon + " e la mia stima della perf è " + predictedOutcomes[i].Point);
-                }*/
+                } 
 
                 if (outcomes[i] == 2 && (predictedOutcomes[i].Point >= -epsilon && predictedOutcomes[i].Point <= epsilon)){
                     accuracy += 1;
@@ -1525,7 +1169,7 @@ namespace ts2
                 }
             }
 
-            Console.WriteLine("DEBUG ACCURACY");
+            Console.WriteLine("ACCURACY");
             Console.WriteLine($" predicted draws: {predictedDraws}/{draw} predicted win t1: {predictedWinT1}/{winT1} predicted win T2: {predictedWinT2}/{winT2}");
             Console.WriteLine("winT1/winT2 accuracy: " + ((correctPredictedWinT1 + correctPredictedWinT2) / (winT1 + winT2)) );
             var pred1accuracy = countPlayersPerMatch[0] > 0 ? pred1Player/countPlayersPerMatch[0] : -1;

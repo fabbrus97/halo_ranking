@@ -2,55 +2,21 @@
 {
     using System;
     using System.Linq;
-    using System.Text.Json;
     using System.Collections.Generic;
-    using Microsoft.ML.Probabilistic;
     using Microsoft.ML.Probabilistic.Distributions;
-    using Microsoft.ML.Probabilistic.Models;
-    using Newtonsoft.Json.Linq;
     using MongoDB.Bson;
     using MongoDB.Driver;
-    using System.Text.RegularExpressions;
-    using System.Collections.Generic;
     
 
-    using Range = Microsoft.ML.Probabilistic.Models.Range;
 
 
     class Program
     {
 
-        static string MONGO_STRING = "mongodb://hds:2wuzA5fRdGVwU2@2.224.244.126:27017/halo_infinite"; 
-        static string MONGO_DB = "halo_infinite"; 
-        static string MONGO_COLLECTION = "filteredmatches"; 
+        static string MONGO_STRING = ""; 
+        static string MONGO_DB = ""; 
+        static string MONGO_COLLECTION = ""; 
         static IMongoCollection<BsonDocument> Matches;
-
-      
-
-        static List<List<Match>> SplitToSublists(List<Match> source,int parametro)
-        {
-            return source
-                     .Select((x, i) => new { Index = i, Value = x })
-                     .GroupBy(x => x.Index / parametro)
-                     .Select(x => x.Select(v => v.Value).ToList())
-                     .ToList();
-        }
-
-        static List<List<Match>> split_match_mode(List<Match> Matches,string[] mode_array){
-          List<List<Match>> match_per_mode=  new List<List<Match>>();
-          for (int i = 0; i < mode_array.Length; i++){
-            match_per_mode.Add(new List<Match>());
-          }
-
-          foreach (var _mode in mode_array){
-            foreach(var _match in Matches){
-              if (_match.mode.Equals(_mode)){
-                match_per_mode[IndexOf(mode_array,_mode)].Add(_match);
-              }
-            }
-          }
-          return match_per_mode;
-        }
 
         static int IndexOf(string[] mod,string cercare){
           int index=0;
@@ -61,20 +27,12 @@
           return index;
         }
 
-
         static List<Match> getMatches(string play_mode, int skip)
         {
 
-          Console.WriteLine("DEBUG Chiedo i match al dataset...");
+          Console.WriteLine("Chiedo i match al dataset...");
 
-          // var dbClient = new MongoClient("mongodb://hds:2wuzA5fRdGVwU2@2.224.244.126:27017/halo_infinite");
-          // IMongoDatabase db = dbClient.GetDatabase("halo_infinite");
-          // var Matches = db.GetCollection<BsonDocument>("filteredmatches");
-          // var dbClient = new MongoClient("mongodb://127.0.0.1:27017");
-          // IMongoDatabase db = dbClient.GetDatabase("dbTestHalo");
-          // var Matches = db.GetCollection<BsonDocument>("Collection");
-
-          // var o = Matches.Find(new BsonDocument()).Limit(10).ToList();
+          
           FindOptions options = new FindOptions{
             AllowDiskUse = true
           };
@@ -91,22 +49,22 @@
               
               if (max-- < 0)
                   break;
-              string play_mode_mongo=(string)(_match["name_arena"]); //["data"][0]["match"]["details"]["gamevariant"]["name"]);
+              string play_mode_mongo=(string)(_match["name_arena"]); 
               play_mode_mongo= play_mode_mongo[6..];
               if(play_mode==play_mode_mongo)
               {
                 var team1players = new List<TeamPlayer>();
                 var team2players = new List<TeamPlayer>();
-                var secondsPlayed = (int)_match["duration"]; //["data"][0]["match"]["duration"]["seconds"];
-                var players_string = _match["players"].ToJson(); //["data"][0]["match"]["players"].ToJson();
-                int num_players= _match["players"].AsBsonArray.Count; // Regex.Matches(players_string, "name").Count; //Regex.Matches(players_string, "details").Count;
+                var secondsPlayed = (int)_match["duration"]; 
+                var players_string = _match["players"].ToJson(); 
+                int num_players= _match["players"].AsBsonArray.Count; 
                 for (int i=0;i<num_players;i=i+1)
               {
-                  var tag = (string)_match["players"][i]["name"]; //["data"][0]["match"]["players"][i]["details"]["name"];
-                  var isBot = Equals(((string)_match["players"][i]["type"]), "bot"); //Equals(((string)_match["data"][0]["match"]["players"][i]["details"]["type"]), "bot");
-                  var date_join=(string)_match["players"][i]["duration"]["joined_at"]; //["data"][0]["match"]["players"][i]["participation"]["joined_at"];
+                  var tag = (string)_match["players"][i]["name"]; 
+                  var isBot = Equals(((string)_match["players"][i]["type"]), "bot"); 
+                  var date_join=(string)_match["players"][i]["duration"]["joined_at"]; 
 
-                  DateTime datetimeJoin = DateTime.Parse( date_join.Substring(1, date_join.Length-2));//JsonSerializer.Deserialize<DateTime>((string)_player["participation"]["joined_at"])!;
+                  DateTime datetimeJoin = DateTime.Parse( date_join.Substring(1, date_join.Length-2));
                   TimeSpan diff = datetimeJoin.ToUniversalTime() - origin;
 
                   var joinTime = Math.Floor(diff.TotalSeconds);
@@ -115,19 +73,17 @@
 
 
 
-                  int kcount = (int)_match["players"][i]["performances"]["kills"]; //["data"][0]["match"]["players"][i]["stats"]["core"]["summary"]["kills"];
-                  int dcount = (int)_match["players"][i]["performances"]["death"]; //["data"][0]["match"]["players"][i]["stats"]["core"]["summary"]["deaths"];
+                  int kcount = (int)_match["players"][i]["performances"]["kills"]; 
+                  int dcount = (int)_match["players"][i]["performances"]["death"]; 
 
-                  // if (!(_match["data"][0]["match"]["players"][i]["participation"]["left_at"].GetType().ToString()=="MongoDB.Bson.BsonNull")){
                   if (!(_match["players"][i]["duration"]["left_at"].GetType().ToString()=="MongoDB.Bson.BsonNull")){
-                      var date_left=(string)_match["players"][i]["duration"]["left_at"]; //["data"][0]["match"]["players"][i]["participation"]["left_at"];
+                      var date_left=(string)_match["players"][i]["duration"]["left_at"]; 
                       DateTime datetimeLeft = DateTime.Parse( date_left.Substring(1, date_left.Length-2));
                       diff = datetimeLeft.ToUniversalTime() - origin;
                       endTime = Math.Floor(diff.TotalSeconds);
                   }
                   else
                       endTime = joinTime + secondsPlayed;
-                  // if ((int)_match["data"][0]["match"]["players"][i]["team"]["id"] == 0)
                   if ((int)_match["players"][i]["team"] == 0)
                       team1players.Add(new TeamPlayer(tag, endTime - joinTime, joinTime, endTime, kcount, dcount, _match["players"][i]["outcome"] == "left", isBot));
                   else
@@ -146,25 +102,13 @@
               {
                 winner = Match.Winner.TEAM2;
               }
-              /*string outcome = (string)(_match["data"][0]["match"]["teams"]["details"][0]["outcome"]);
-              var winner = Match.Winner.DRAW;
-              if (outcome == "loss"){
-                  winner = Match.Winner.TEAM2;
-              }
-              else if (outcome == "win"){
-                  winner = Match.Winner.TEAM1;
-              }*/
               
-              // string mode=(string)(_match["data"][0]["match"]["details"]["gamevariant"]["name"]);
-              // mode=mode[6..];
 
 
-
-
-              string id = (string)_match["id"]; //["data"][0]["match"]["id"];
-              var played_at=(string)_match["played_at"]; //["data"][0]["match"]["played_at"];
+              string id = (string)_match["id"]; 
+              var played_at=(string)_match["played_at"]; 
               var startTime = Math.Floor((DateTime.Parse( played_at).ToUniversalTime() - origin).TotalSeconds);
-              // var startTime = Math.Floor(((DateTime.Parse( played_at.Substring(1, played_at.Length-2))).ToUniversalTime() - origin).TotalSeconds);
+              
               var endTimeMatch = startTime + secondsPlayed;
 
               var match = new Match(team1, team2, winner, id, play_mode_mongo, startTime, endTimeMatch, secondsPlayed);
@@ -173,7 +117,7 @@
           
           }
 
-          Console.WriteLine("DEBUG match ottenuti");
+          Console.WriteLine("Match ottenuti");
           return matches;
         }
 
@@ -188,12 +132,12 @@
         foreach (Match item in sottolista){
 
           var filter = Builders<BsonDocument>.Filter.Eq("id", item.id);
-          // var filter = Builders<BsonDocument>.Filter.Eq("data.0.match.id", item.id);
+          
 
           for(int i=0;i<item.team1.nPlayers();i=i+1){
             var skill_player=skills[IndexOf(nomi,item.team1.teammates[i].tag)].GetMean();
             var update = Builders<BsonDocument>.Update.Set("players."+i+".skill", skill_player);
-            // var update = Builders<BsonDocument>.Update.Set("data.0.match.players."+i+".rank", skill_player);
+            
             Matches.UpdateOne(filter, update);
 
           }
@@ -201,7 +145,6 @@
             var skill_player=skills[IndexOf(nomi,item.team2.teammates[i].tag)].GetMean();
             var tot_i=i+item.team1.nPlayers();
             var update = Builders<BsonDocument>.Update.Set("players."+tot_i+".skill", skill_player);
-            // var update = Builders<BsonDocument>.Update.Set("data.0.match.players."+tot_i+".rank", skill_player);
             Matches.UpdateOneAsync(filter, update);
           }
 
@@ -211,9 +154,6 @@
 
       static int getTotGames(string play_mode)
       {
-        // var dbClient = new MongoClient("mongodb://hds:2wuzA5fRdGVwU2@2.224.244.126:27017/halo_infinite");
-        // IMongoDatabase db = dbClient.GetDatabase("halo_infinite");
-        // var Matches = db.GetCollection<BsonDocument>("filteredmatches");
         
         int tot = (int)Matches.CountDocuments("{'name_arena': 'Arena:" + play_mode + "'}");
         return tot;
@@ -221,35 +161,20 @@
 
       static void calcoloSkill(string moda_scelta){
 
-        Console.WriteLine("Hai scelto la modalità: "+moda_scelta);
         var skip = 0;
         var percentGamesToPredict = 10; //10%
         var matches = getMatches(moda_scelta, skip);
         var parcalc = new ParamsCalculator();
         Console.WriteLine("Inizio calcolo dei parametri...");
         
-        //TODO setta parametri a seconda della partita
-        // var Players_arr = parcalc.players(matches);
-        // var Players_arr = parcalc.players(matches).ToArray();
-        // Gaussian[] Skillls = new Gaussian[Players_arr.Length];
         List<Gaussian> Skillls = new List<Gaussian>();
         List<double> last_game_all_players = new List<double>();
         List<int> experience_all_players = new List<int>();
         List<string> players_fino_ad_ora=  new List<string>();
 
 
-        // var sublists = SplitToSublists(matches,1000);
-        // // var sublists = SplitToSublists(matches,50);
-        // Console.WriteLine("Ci sono "+sublists.Count+" sublist");
-        // var totale=0;
-        // for(var i=0;i<sublists.Count;i=i+1){
-        //   Console.WriteLine("La sublist numero "+ i + " ha "+ sublists[i].Count+" match");
-        //   totale=totale+ sublists[i].Count;
-        // }
-        // Console.WriteLine("In totale ci sono "+totale+" match per la modalità "+moda_scelta );
 
 
-        // for (int i=0;i<sublists.Count;i=i+1){
         int correctPredictions = 0;
         double totalPredicted = 0;
         var totGames = getTotGames(moda_scelta);
@@ -260,22 +185,17 @@
         while (matches.Count() > 0) 
         {
 
-          // Console.WriteLine("Sto analizzando la sublist numero "+i);
-          // parcalc.SetMatches(sublists[i]);
           parcalc.SetMatches(matches);
 
-          // var appoggio_player = parcalc.players(sublists[i]).ToArray();
           var appoggio_player = parcalc.players(matches).ToArray();
           double[][][] timepassed = new double[matches.Count()][][];
           int[][] experience = new int[appoggio_player.Count()][];
 
           var arr_players_common = players_fino_ad_ora.Intersect(appoggio_player);
           if(skip>0){
-          // if(i>0){
+          
             Gaussian[] baseskills = new Gaussian[appoggio_player.Length];
-            Console.WriteLine("I giocatori già incontrati nei precedenti gruppi sono: "+arr_players_common.Count());
             foreach(string item in arr_players_common){
-              // baseskills[IndexOf(appoggio_player,item)]=Skillls[Players_arr.IndexOf(item)];
               var tmpIndex = players_fino_ad_ora.IndexOf(item);
 
               baseskills[IndexOf(appoggio_player,item)]
@@ -297,9 +217,6 @@
           for (int i = 0; i < appoggio_player.Count(); i++)
           {
                 experience[i] = new int[matches.Count()];
-                //FIXME: è un po' uno spreco di memoria perché mi salvo l'esperienza per ogni partita
-                //quindi se tra le partite 200 e 300 il giocatore non gioca, mi salvo comunque 100 volte 
-                //lo stesso livello di esperienza (perché non cambia - perché il giocatore non ha giocato)
                 for (int j = 0; j < matches.Count(); j++)
                 {
                     experience[i][j] = -1;
@@ -316,7 +233,7 @@
               var playerGlobalIndex = players_fino_ad_ora.FindIndex(t => t == matches[i].team1.teammates[k].tag);
 
                 
-              timepassed[i][0][k] = 0.0; //TODO se si analizzano le partite a batch di 1000, tra un batch e l'altro ci si perde l'ultima partita del giocatore
+              timepassed[i][0][k] = 0.0; 
               if (i == 0){
                 last_game_all_players[playerGlobalIndex] = matches[i].startTime;      
                 if (experience_all_players[playerGlobalIndex] == 0){
@@ -330,32 +247,9 @@
               {   
                 if (last_game_all_players[playerGlobalIndex] != 0)
                   timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex];      
-                  //search the last game of the player
-                  /*if (last_game_all_players[playerGlobalIndex] == 0){
-                    for (int s = i-1; s >= 0 ; s--)
-                    {
-                        var pl = matches[s].team1.teammates.FindIndex(t => t.tag == matches[i].team1.teammates[k].tag);
-                        if (pl < 0)
-                            pl = matches[s].team2.teammates.FindIndex(t => t.tag == matches[i].team1.teammates[k].tag);
-                        if (pl > 0)
-                        {
-                          timepassed[i][0][k] = matches[i].startTime - matches[s].startTime; 
-                          break;
-                          // if (arr_players_common.Contains(appoggio_player[i]))
-                          //   timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex]; 
-                          // else
-                          //   timepassed[i][0][k] = matches[i].startTime - matches[s].startTime;
-                          // last_game_all_players[playerGlobalIndex] = matches[i].startTime;
-                    
-                        }
-                      last_game_all_players[playerGlobalIndex] = matches[i].startTime;
-                    }
-                  } else {
-                    timepassed[i][0][k] = matches[i].startTime - last_game_all_players[playerGlobalIndex];      
-                  }*/
-                last_game_all_players[playerGlobalIndex] = matches[i].startTime;
-                  
-              
+                
+                //search the last game of the player
+                last_game_all_players[playerGlobalIndex] = matches[i].startTime;  
               
                 if (experience_all_players[playerGlobalIndex] == 0)
                 {
@@ -377,40 +271,6 @@
 
                 experience_all_players[playerGlobalIndex] += 1;
               }
-              /*if (experience[player][0] < 0){                   
-                  
-                  if (arr_players_common.Contains(appoggio_player[i]))
-                  {
-                    
-                    for (int x = 0; x < i; x++)
-                        experience[player][x] = experience_all_players[playerGlobalIndex];
-                    experience[player][i] = experience_all_players[playerGlobalIndex] + 1;
-
-                    experience_all_players[playerGlobalIndex] += 1;
-                  } 
-                  else 
-                  {
-                    for (int x = 0; x < i; x++)
-                        experience[player][x] = 0;
-                    experience[player][i] = 1;
-
-                    experience_all_players[playerGlobalIndex] = 1;
-                  }
-                  
-              }
-              else
-              {
-                  int searchMatch = 1; 
-                  while(searchMatch < i)
-                  {
-                      if (experience[player][searchMatch] < 0)    
-                          experience[player][searchMatch] = experience[player][searchMatch-1];
-                      searchMatch += 1;
-                  }
-                  experience[player][i] = experience[player][i-1] + 1;
-
-                  experience_all_players[playerGlobalIndex] += 1;
-              }*/
             }
 
             for (int k = 0; k < matches[i].team2.nPlayers(); k++){
@@ -456,8 +316,7 @@
                   }
                   experience[player][i] = experience[player][i-1] + 1;
                   
-                  // for (int y = i; y < experience[player].Length; y++)
-                  //   experience[player][y] = experience[player][y-1];
+                  
                 }
                 
                 experience_all_players[playerGlobalIndex] += 1;
@@ -465,15 +324,6 @@
             }
           }
 
-          // if (skip + 1000 > gamesToPredict) // 36000 per ctf TODO bisogna calcolare il totale delle partite e la percentuale delle partite per le quali vogliamo calcolare l'accuracy
-          // {
-          // //   parcalc.PredictAccuracy();
-          //   Console.WriteLine("🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬🐬");
-          //   int _correctPredictions = 0;
-          //   Console.WriteLine("Accuracy: " + parcalc.predictAccuracy(matches, out _correctPredictions));
-          //   correctPredictions += _correctPredictions;
-          //   totalPredicted += matches.Count();
-          // }
           int _correct = 0, offset = matches.Count() - 1;
           if (skip + 1000 > gamesToPredict && totalPredicted == 0)
           {
@@ -490,7 +340,6 @@
           correctPredictions += _correct;
          
           foreach(string item in appoggio_player){
-            // Skillls[Players_arr.IndexOf(item)] = appoggio_skill[IndexOf(appoggio_player,item)]; //Mi salvo le skill
             var tmpIndex = players_fino_ad_ora.IndexOf(item);
             var tmpSkill = appoggio_skill[IndexOf(appoggio_player,item)]; 
             //Mi salvo le skill
@@ -499,11 +348,9 @@
             else
               Skillls.Add(tmpSkill);
           }
-          // updateMongo(matches,appoggio_skill,appoggio_player); //TODO
+          updateMongo(matches,appoggio_skill,appoggio_player);
 
-          // Console.WriteLine("Nel sottogruppo "+ i+ " ho "+ appoggio_player.Length+" giocatori");
-          // Console.WriteLine("Nel sottogruppo "+ i+ " ho "+  appoggio_skill.Length+" skills");
-          Console.WriteLine("Ora il numero di giocatori incontrati è "+players_fino_ad_ora.Count);
+          Console.WriteLine("Il numero di giocatori incontrati è "+players_fino_ad_ora.Count);
 
           Console.WriteLine("\n=========================================================");
           Console.WriteLine("Analizzate partite dalla " + skip + " alla " + (skip + 1000));
@@ -516,12 +363,7 @@
           checkPlayers(players_fino_ad_ora, matches);
         }
       
-        Console.WriteLine("PREDICT DEBUG");
-        Console.WriteLine($"modalità: {moda_scelta} partite totali: {totGames} di cui da predirre: {totGames - gamesToPredict} inizio predizioni da: {gamesToPredict}");
-        Console.WriteLine("");
-        Console.WriteLine($"Partite effetivamente predette: {totalPredicted}");
-        Console.WriteLine("");
-        Console.WriteLine($"Final predict accuracy: {correctPredictions/totalPredicted}");
+        Console.WriteLine($"Predict accuracy: {correctPredictions/totalPredicted}");
       }
 
       static private void checkPlayers(List<string> old_players, List<Match> matches)
@@ -545,13 +387,6 @@
           }
           known_player_per_match[known_players]++;
         }
-
-        Console.WriteLine("🤬🤬🤬🤬🤬🤬🤬🤬🤬🤬🤬");
-        for (int i = 0; i < 4; i++)
-        {
-          var value = known_player_per_match[i];
-          Console.WriteLine($"\t i ===> {value}");  
-        }
         
       }
 
@@ -565,26 +400,19 @@
 
         string[] mode_array = new string[] { "CTF","Slayer","Strongholds","Oddball","One Flag CTF"};
         Console.WriteLine("Inserisci il nome delle modalità di gioco che vuoi analizzare, separate dalla virgola senza spazi");
-        // string moda_utente = Console.ReadLine();
-        // 'Arena:Attrition', 🏃
-        // 'Arena:CTF', ✅
-        // 'Arena:King of the Hill', ✅
-        // 'Arena:Oddball', ✅
-        // 'Arena:One Flag CTF', ✅
-        // 'Arena:Slayer', ✅
-        // 'Arena:Strongholds' ✅ 
-        string moda_utente = "Slayer";
+        string moda_utente = Console.ReadLine();
+        
+        // 'Arena:Attrition', 
+        // 'Arena:CTF', 
+        // 'Arena:King of the Hill', 
+        // 'Arena:Oddball', 
+        // 'Arena:One Flag CTF', 
+        // 'Arena:Slayer', 
+        // 'Arena:Strongholds'  
 
         List<string> result = moda_utente.Split(',').ToList();
 
         for(int i=0;i<result.Count;i=i+1) calcoloSkill(result[i]);
-
-        //List<List<Match>> match_per_mode=split_match_mode(matches,mode_array);
-
-
-
-        //Console.WriteLine("Precisione previsioni partite: " + parcalc.predictAccuracy(matches2predict));
-
 
 
       }

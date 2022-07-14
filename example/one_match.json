@@ -1,0 +1,123 @@
+[
+  {
+    "id"":" "033c07f6-3b7f-43db-80a7-c34354cb2c64",
+    "name_arena:" ""Arena:"Slayer",
+    "team_winner:" 1,
+    "played_at:" "2022-04-17T17:10:26.377Z",
+    "duration:" 458,
+    "players:" [
+      {
+        "name:" "stoutl4ND",
+        "type:" "player",
+        "team:" 1,
+        "rank:" 4,
+        "skill:" 0,
+        "outcome:" "win",
+        "duration:" {
+          "joined_in_progress:" false,
+          "joined_at:" "2022-04-17T17:10:56.091Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 9, "death:" 8 }
+      },
+      {
+        "name:" "Schindi8482",
+        "type:" "player",
+        "team:" 1,
+        "rank:" 2,
+        "skill:" 0,
+        "outcome:" "win",
+        "duration:" {
+          "joined_in_progress:" false,
+          "joined_at:" "2022-04-17T17:10:56.092Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 13, "death:" 9 }
+      },
+      {
+        "name:" "DarthRBNH42",
+        "type:" "player",
+        "team:" 1,
+        "rank:" 1,
+        "skill:" 0,
+        "outcome:" "win",
+        "duration:" {
+          "joined_in_progress:" false,
+          "joined_at:" "2022-04-17T17:10:56.093Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 16, "death:" 16 }
+      },
+      {
+        "name:" "HiLobster411",
+        "type:" "player",
+        "team:" 1,
+        "rank:" 3,
+        "skill:" 0,
+        "outcome:" "win",
+        "duration:" {
+          "joined_in_progress:" false,
+          "joined_at:" "2022-04-17T17:10:56.093Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 12, "death:" 7 }
+      },
+      {
+        "name:" "CRFJ17",
+        "type:" "player",
+        "team:" 0,
+        "rank:" 7,
+        "skill:" 0,
+        "outcome:" "loss",
+        "duration:" {
+          "joined_in_progress:" false,
+          "joined_at:" "2022-04-17T17:10:56.093Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 11, "death:" 13 }
+      },
+      {
+        "name:" "The Chief 914",
+        "type:" "player",
+        "team:" 0,
+        "rank:" 6,
+        "skill:" 0,
+        "outcome:" "loss",
+        "duration:" {
+          "joined_in_progress:" false,
+          "joined_at:" "2022-04-17T17:10:56.093Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 12, "death:" 10 }
+      },
+      {
+        "name:" "RottZweiler",
+        "type:" "player",
+        "team:" 0,
+        "rank:" 5,
+        "skill:" 0,
+        "outcome:" "loss",
+        "duration:" {
+          "joined_in_progress:" false,
+          "joined_at:" "2022-04-17T17:10:56.093Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 14, "death:" 13 }
+      },
+      {
+        "name:" "343 Bot #1",
+        "type:" "bot",
+        "team:" 0,
+        "rank:" 8,
+        "skill:" 0,
+        "outcome:" "loss",
+        "duration:" {
+          "joined_in_progress:" true,
+          "joined_at:" "2022-04-17T17:11:19.594Z",
+          "left_at:" null
+        },
+        "performances:" { "kills:" 0, "death:" 0 }
+      }
+    ]
+  }
+]
