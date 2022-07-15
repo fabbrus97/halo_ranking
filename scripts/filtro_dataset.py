@@ -3,8 +3,8 @@ from datetime import datetime
 
 
 
-myclient = pymongo.MongoClient('mongodb://hds:2wuzA5fRdGVwU2@2.224.244.126:27017/halo_infinite')
-myclient2 = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
+myclient = pymongo.MongoClient('')
+myclient2 = pymongo.MongoClient("")
 db = myclient["halo_infinite"]
 db2= myclient2["FinaleHalo"]
 Matches = db["matches"]
