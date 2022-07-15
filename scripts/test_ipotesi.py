@@ -1,7 +1,7 @@
 import pymongo
 
 def aggiustamento_skill(mod):
-    myclient = pymongo.MongoClient('mongodb://hds:2wuzA5fRdGVwU2@2.224.244.126:27017/halo_infinite')
+    myclient = pymongo.MongoClient('')
     db = myclient["halo_infinite"]
     Matches = db["filteredmatches"]
     agg=0
@@ -16,7 +16,7 @@ def aggiustamento_skill(mod):
 
 def calcologap(mod,n):
 
-    myclient = pymongo.MongoClient('mongodb://hds:2wuzA5fRdGVwU2@2.224.244.126:27017/halo_infinite')
+    myclient = pymongo.MongoClient('')
     db = myclient["halo_infinite"]
     Matches = db["filteredmatches"]
 
