@@ -11,7 +11,7 @@ Il repository è così strutturato:
 Questo software permette di calcolare le skill di giocatori, data una lista di partite del gioco di Halo Infinite e settati i parametri nella funzione `InferSkillsAndParameters()` del file `ParamsCalculator.cs`.
 
 #### Requisiti
-* dotnet > 6.0
+* dotnet >= 6.0
 * istanza inizializzata di un database mongodb
 
 #### Avvio
